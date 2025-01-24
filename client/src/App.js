@@ -1,5 +1,11 @@
 import logo from './logo.svg';
 import './App.css';
+import Button from '@mui/material/Button';
+
+
+function ButtonUsage() {
+  return <Button variant="contained">Hello world</Button>;
+}
 
 function App() {
   return (
@@ -17,6 +23,7 @@ function App() {
         >
           Learn React
         </a>
+        <Button variant="contained">Hello world</Button>
       </header>
     </div>
   );

@@ -1,9 +1,9 @@
 # dependencies
-/node_modules
-/client/node_modules
+./node_modules
+./client/node_modules
 
 # build output
-/client/build
+./client/build
 
 # other common files
 .DS_Store
