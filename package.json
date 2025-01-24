@@ -1,0 +1,29 @@
+{
+  "name": "dataperimeterwebapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server/index.js",
+    "client": "npm start --prefix client",
+    "server": "nodemon server/index.js",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MilesHoffman/DataPerimeterWebApp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MilesHoffman/DataPerimeterWebApp/issues"
+  },
+  "homepage": "https://github.com/MilesHoffman/DataPerimeterWebApp#readme",
+  "dependencies": {
+    "concurrently": "^9.1.2",
+    "nodemon": "^3.1.9",
+    "web-vitals": "^4.2.4"
+  }
+}

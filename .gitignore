@@ -1,0 +1,13 @@
+# dependencies
+/node_modules
+/client/node_modules
+
+# build output
+/client/build
+
+# other common files
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
