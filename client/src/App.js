@@ -14,6 +14,8 @@ import {
     Tab,
     CssBaseline,
     Container,
+    Box,
+    Grid, Grid2
 } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LoginPage from './Pages/LoginPage';
@@ -76,12 +78,6 @@ function App() {
                         {getPageTitle()}
                     </Typography>
 
-                    <Tabs value={getCurrentTab()} onChange={handleTabChange} textColor='inherit'>
-                        <Tab label='Home' value='/' />
-                        <Tab label='Login' value={'/login'} />
-                        <Tab label='Resource Page (temp)' value='/resourcePage' />
-                    </Tabs>
-
                     <IconButton
                         size='large'
                         edge='end'
@@ -114,22 +110,33 @@ function App() {
     };
 
     /*
-        * Cssbaseline: Sets the global theme I think
-        * MyAppBar: Appbar. I separated it to make it readable. It is above me
-     */
+	 * Cssbaseline: Sets the global theme I think
+	 * MyAppBar: Appbar. I separated it to make it readable. It is above me
+	 */
     return (
-        <div>
+        <div style={{display: 'flex', flex: 1}}>
             <CssBaseline />
-
             {MyAppBar()}
-
-            <Container maxWidth={'xl'} sx={{ mt: 10, mb: 3 }}>
-                <Routes>
-                    <Route path='/' element={<HomePage />} />
-                    <Route path='/resourcePage' element={<ResourcePage />} />
-                    <Route path='/login' element={<LoginPage />} />
-                </Routes>
-            </Container>
+            <div style={{ display: 'flex', flexDirection: 'row', marginTop: '64px', flex: 1, flexGrow: 1  }}>
+                <Tabs
+                    value={getCurrentTab()}
+                    onChange={handleTabChange}
+                    textColor='inherit'
+                    orientation='vertical'
+                    sx={{ background: '#1ECBE1', flex: 1 }}
+                >
+                    <Tab label='Home' value='/' />
+                    <Tab label='Login' value='/login' />
+                    <Tab label='Resource Page (temp)' value='/resourcePage' />
+                </Tabs>
+                <Container maxWidth='xl' sx={{ mt: 4, mb: 4 }}>
+                    <Routes>
+                        <Route path='/' element={<HomePage />} />
+                        <Route path='/resourcePage' element={<ResourcePage />} />
+                        <Route path='/login' element={<LoginPage />} />
+                    </Routes>
+                </Container>
+            </div>
         </div>
     );
 }
