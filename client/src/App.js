@@ -113,6 +113,10 @@ function App() {
         );
     };
 
+    /*
+        * Cssbaseline: Sets the global theme I think
+        * MyAppBar: Appbar. I separated it to make it readable. It is above me
+     */
     return (
         <div>
             <CssBaseline />
