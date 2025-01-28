@@ -1,8 +1,9 @@
-import './App.css';
+import './themes/appTheme.css';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import ResourcePage from './Pages/ResourcePage';
 import React, {useContext, useState} from 'react';
 import HomePage from './Pages/HomePage';
+import './themes/appTheme.css'
 import {
     AppBar,
     Menu,
@@ -73,32 +74,6 @@ function App() {
         handleCloseProfileMenu()
     }
 
-    const ProfileCard = ({name, onClick}) => {
-
-        return(
-            <MenuItem onClick={onClick}>
-                <Typography sx={{flex: 1}}>
-                    {name}
-                </Typography>
-                <IconButton>
-                    <CloseIcon/>
-                </IconButton>
-            </MenuItem>
-        )
-    }
-
-    const DisplayProfiles = () => {
-        const { profiles } = useContext(ProfileContext); // Access profiles from context
-
-        return (
-            <div>
-                {Object.entries(profiles).map(([userId, profile]) => (
-                    <ProfileCard onClick={handleCloseProfileMenu} name={profile.name} />
-                ))}
-            </div>
-        );
-    };
-
     // App bar for the website.
     const MyAppBar = () => {
         return (
@@ -139,27 +114,35 @@ function App() {
         );
     };
 
-    /*
-	 * Cssbaseline: Sets the global theme I think
-	 * MyAppBar: Appbar. I separated it to make it readable. It is above me
-	 */
+    const ProfileCard = ({ name, onClick }) => {
+        return (
+            <MenuItem onClick={onClick}>
+                <Typography sx={{ flex: 1 }}>{name}</Typography>
+                <IconButton>
+                    <CloseIcon />
+                </IconButton>
+            </MenuItem>
+        );
+    };
+
+    const DisplayProfiles = () => {
+        const { profiles } = useContext(ProfileContext);
+
+        return (
+            <div>
+                {Object.entries(profiles).map(([userId, profile]) => (
+                    <ProfileCard key={userId} onClick={handleCloseProfileMenu} name={profile.name} />
+                ))}
+            </div>
+        );
+    };
+
     return (
-        <div style={{
-            display: 'flex',
-            minHeight: '100vh',
-            paddingTop: 64
-        }}>
+        <div className='app-container'>
             <CssBaseline />
             {MyAppBar()}
 
-            <div
-                style={{
-                    width: 200,
-                    background: '#949AF9',
-                    position: 'fixed',
-                    height: '100%'
-                }}
-            >
+            <div className='sidebar'>
                 <Tabs
                     value={getCurrentTab()}
                     onChange={handleTabChange}
@@ -170,23 +153,15 @@ function App() {
                     <Tab label='Login' value='/login' />
                     <Tab label='Resource Page (temp)' value='/resourcePage' />
                 </Tabs>
-
             </div>
 
-            <div
-                style={{
-                    flex: 1,
-                    padding: 10,
-                    paddingLeft: 210
-                }}
-            >
+            <div className='content-area'>
                 <Routes>
                     <Route path='/' element={<HomePage />} />
                     <Route path='/resourcePage' element={<ResourcePage />} />
                     <Route path='/login' element={<LoginPage />} />
                 </Routes>
             </div>
-
         </div>
     );
 }

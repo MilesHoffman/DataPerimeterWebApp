@@ -5,6 +5,7 @@ import {Profile} from "../classes/profileClass";
 
 // Lets us access profiles across the app.
 const ProfileContext = createContext();
+const CurrentProfileContext = createContext()
 
 export const ProfileProvider = ({ children }) => {
 
@@ -13,6 +14,9 @@ export const ProfileProvider = ({ children }) => {
 		'user123': new Profile('John Doe'),
 		'user456': new Profile('Jane Smith'),
 	});
+
+	// todo: This holds the current selected profile
+	const [currentProfileId, setCurrentProfile] = useState()
 
 	// Use this after a successful log in
 	const addProfile = (userId, profileData) => {
