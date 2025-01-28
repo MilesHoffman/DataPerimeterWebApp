@@ -13,11 +13,9 @@ import {
     Tabs,
     Tab,
     CssBaseline,
-    Container,
-    Box,
-    Grid, Grid2
 } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import CloseIcon from '@mui/icons-material/Close';
 import LoginPage from './Pages/LoginPage';
 
 function App() {
@@ -69,6 +67,20 @@ function App() {
         }
     };
 
+    const ProfileCard = ({name, onClick}) => {
+
+        return(
+            <MenuItem onClick={onClick}>
+                <Typography sx={{flex: 1}}>
+                    {name}
+                </Typography>
+                <IconButton>
+                    <CloseIcon/>
+                </IconButton>
+            </MenuItem>
+        )
+    }
+
     // App bar for the website.
     const MyAppBar = () => {
         return (
@@ -100,9 +112,10 @@ function App() {
                             horizontal: 'right',
                         }}
                     >
-                        <MenuItem onClick={handleCloseProfileMenu}>Profile</MenuItem>
-                        <MenuItem onClick={handleCloseProfileMenu}>My account</MenuItem>
-                        <MenuItem onClick={handleCloseProfileMenu}>Logout</MenuItem>
+                        <ProfileCard onClick={handleCloseProfileMenu} name={'Dog LLC'} />
+                        <ProfileCard onClick={handleCloseProfileMenu} name={'Puppy LLC'} />
+                        <ProfileCard onClick={handleCloseProfileMenu} name={'Competitor LLC'} />
+                        <MenuItem onClick={handleCloseProfileMenu}>Logout All</MenuItem>
                     </Menu>
                 </Toolbar>
             </AppBar>
@@ -114,29 +127,49 @@ function App() {
 	 * MyAppBar: Appbar. I separated it to make it readable. It is above me
 	 */
     return (
-        <div style={{display: 'flex', flex: 1}}>
+        <div style={{
+            display: 'flex',
+            minHeight: '100vh',
+            paddingTop: 64
+        }}>
             <CssBaseline />
             {MyAppBar()}
-            <div style={{ display: 'flex', flexDirection: 'row', marginTop: '64px', flex: 1, flexGrow: 1  }}>
+
+            <div
+                style={{
+                    width: 200,
+                    background: '#949AF9',
+                    position: 'fixed',
+                    height: '100%'
+                }}
+            >
                 <Tabs
                     value={getCurrentTab()}
                     onChange={handleTabChange}
                     textColor='inherit'
                     orientation='vertical'
-                    sx={{ background: '#1ECBE1', flex: 1 }}
                 >
                     <Tab label='Home' value='/' />
                     <Tab label='Login' value='/login' />
                     <Tab label='Resource Page (temp)' value='/resourcePage' />
                 </Tabs>
-                <Container maxWidth='xl' sx={{ mt: 4, mb: 4 }}>
-                    <Routes>
-                        <Route path='/' element={<HomePage />} />
-                        <Route path='/resourcePage' element={<ResourcePage />} />
-                        <Route path='/login' element={<LoginPage />} />
-                    </Routes>
-                </Container>
+
             </div>
+
+            <div
+                style={{
+                    flex: 1,
+                    padding: 10,
+                    paddingLeft: 210
+                }}
+            >
+                <Routes>
+                    <Route path='/' element={<HomePage />} />
+                    <Route path='/resourcePage' element={<ResourcePage />} />
+                    <Route path='/login' element={<LoginPage />} />
+                </Routes>
+            </div>
+
         </div>
     );
 }
