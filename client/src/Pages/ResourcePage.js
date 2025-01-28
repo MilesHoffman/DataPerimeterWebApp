@@ -62,9 +62,9 @@ function ResourcePage() {
                 {resources.map((resource) => (
                     <Grid item xs={12} sm={6} md={4} key={resource.name}>
                         <Card sx={{height: 350, display: "flex", flexDirection: "column"}}>
-                            {/* Add flex display and column direction */}
+
                             <CardActionArea sx={{flex: 1, display: "flex"}}>
-                                {/* Allow CardActionArea to take available space */}
+
                                 {resource.type === "image" ? (
                                     <CardMedia
                                         component="img"
@@ -83,7 +83,7 @@ function ResourcePage() {
                                             alignItems: "center",
                                         }}
                                     >
-                                        {/* Center the icon and allow it to take space */}
+
                                         <InsertDriveFileIcon sx={{fontSize: 80}}/>
                                     </CardContent>
                                 )}
