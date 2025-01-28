@@ -16,7 +16,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-
+import Stack from '@mui/material/Stack';
 
 import testImage1 from '../tempResources/testImage1.jpg'
 import testImage2 from '../tempResources/testImage2.jpg'
@@ -56,7 +56,13 @@ function ResourcePage() {
     return (
 
         <div>
-            <h1>Resource Page</h1>
+            <Stack direction="row" alignItems="center" spacing={1}>
+                <h1>Resource Page</h1>
+                <IconButton variant="contained" aria-label="add">
+                    <AddIcon />
+                </IconButton>
+            </Stack>
+
 
             <Grid container spacing={2}>
                 {resources.map((resource) => (
