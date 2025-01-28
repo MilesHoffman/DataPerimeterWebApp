@@ -1,7 +1,7 @@
 import './App.css';
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import ResourcePage from './Pages/ResourcePage';
-import React, { useState } from 'react';
+import React, {useContext, useState} from 'react';
 import HomePage from './Pages/HomePage';
 import {
     AppBar,
@@ -17,6 +17,7 @@ import {
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import LoginPage from './Pages/LoginPage';
+import ProfileContext, {profiles} from "./logic/profileLogic";
 
 function App() {
     const location = useLocation();
@@ -67,6 +68,11 @@ function App() {
         }
     };
 
+    const handleLoginNavigate = () => {
+        navigate('/login')
+        handleCloseProfileMenu()
+    }
+
     const ProfileCard = ({name, onClick}) => {
 
         return(
@@ -80,6 +86,18 @@ function App() {
             </MenuItem>
         )
     }
+
+    const DisplayProfiles = () => {
+        const { profiles } = useContext(ProfileContext); // Access profiles from context
+
+        return (
+            <div>
+                {Object.entries(profiles).map(([userId, profile]) => (
+                    <ProfileCard onClick={handleCloseProfileMenu} name={profile.name} />
+                ))}
+            </div>
+        );
+    };
 
     // App bar for the website.
     const MyAppBar = () => {
@@ -112,9 +130,8 @@ function App() {
                             horizontal: 'right',
                         }}
                     >
-                        <ProfileCard onClick={handleCloseProfileMenu} name={'Dog LLC'} />
-                        <ProfileCard onClick={handleCloseProfileMenu} name={'Puppy LLC'} />
-                        <ProfileCard onClick={handleCloseProfileMenu} name={'Competitor LLC'} />
+                        <MenuItem onClick={handleLoginNavigate}>Login</MenuItem>
+                        <DisplayProfiles />
                         <MenuItem onClick={handleCloseProfileMenu}>Logout All</MenuItem>
                     </Menu>
                 </Toolbar>
