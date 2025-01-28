@@ -122,8 +122,8 @@ function ResourcePage() {
                                     open={open}
                                     onClose={handleClose}
                                 >
-                                    <MenuItem onClick={handleClose}>Option 1</MenuItem>
-                                    <MenuItem onClick={handleClose}>Option 2</MenuItem>
+                                    <MenuItem onClick={handleClose} variant="contained" startIcon={<EditIcon />}>Modify</MenuItem>
+                                    <MenuItem onClick={handleClose} variant="contained" startIcon={<DeleteIcon />}>Delete</MenuItem>
                                     <MenuItem onClick={handleClose}>Option 3</MenuItem>
                                 </Menu>
                             </CardContent>
