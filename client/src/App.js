@@ -120,10 +120,25 @@ function App() {
     };
 
     const ProfileCard = ({ name, onClick }) => {
+        const { currentProfileId, setCurrentProfile, removeProfile } = useContext(ProfileContext);
+
+        // Sets the current profile
+        const handleProfileCardClick = () => {
+            setCurrentProfile(name);
+            onClick();
+        }
+
+        // Logs out the profile
+        const handleLogout = () => {
+            removeProfile(name)
+        }
+
         return (
-            <MenuItem onClick={onClick}>
-                <Typography sx={{ flex: 1 }}>{name}</Typography>
-                <IconButton>
+            <MenuItem onClick={handleProfileCardClick}>
+                <Typography sx={{ flex: 1, fontWeight: currentProfileId === name ? 'bold' : 'normal' }}>
+                    {name}
+                </Typography>
+                <IconButton onClick={handleLogout}>
                     <CloseIcon />
                 </IconButton>
             </MenuItem>
