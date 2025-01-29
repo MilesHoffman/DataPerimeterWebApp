@@ -19,6 +19,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import LoginPage from './Pages/LoginPage';
 import ProfileContext, {profiles} from "./logic/profileLogic";
+import Policies from './Pages/Policies';
 
 function App() {
     const location = useLocation();
@@ -50,6 +51,8 @@ function App() {
                 return 'Resource Page';
             case '/login':
                 return 'Login';
+            case '/policies':
+                return 'Policies';
             default:
                 return 'Data Perimeter App';
         }
@@ -64,6 +67,8 @@ function App() {
                 return '/resourcePage';
             case '/login':
                 return '/login';
+            case '/policies':
+                return '/policies';
             default:
                 return '';
         }
@@ -152,6 +157,7 @@ function App() {
                     <Tab label='Home' value='/' />
                     <Tab label='Login' value='/login' />
                     <Tab label='Resource Page (temp)' value='/resourcePage' />
+                    <Tab label='Policies' value='/policies' />
                 </Tabs>
             </div>
 
@@ -160,6 +166,7 @@ function App() {
                     <Route path='/' element={<HomePage />} />
                     <Route path='/resourcePage' element={<ResourcePage />} />
                     <Route path='/login' element={<LoginPage />} />
+                    <Route path='/policies' element={<Policies />} />
                 </Routes>
             </div>
         </div>
