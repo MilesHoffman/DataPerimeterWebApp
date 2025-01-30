@@ -96,7 +96,7 @@ function App() {
                     </Typography>
 
                     <Typography variant={'h5'} color={'textPrimary'}>
-                        {currentProfile.name}
+                        {currentProfile ? currentProfile.name : ''}
                     </Typography>
 
                     <IconButton
