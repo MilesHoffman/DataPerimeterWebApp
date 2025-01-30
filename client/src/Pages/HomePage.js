@@ -36,7 +36,7 @@ const DashboardCard = styled(Paper)(({ status }) => ({
 
 const Homepage = () => {
   const navigate = useNavigate();
-  const { profiles, setCurrentProfile } = useContext(ProfileContext);
+  const { profiles, setCurrentProfile, currentProfileId } = useContext(ProfileContext);
   const [accounts, setAccounts] = useState([]);
 
   useEffect(() => {
@@ -46,10 +46,10 @@ const Homepage = () => {
         resources: profile.resources || [],
         lastActive: profile.lastActive || 0,
       }))
-      .sort((a, b) => b.lastActive - a.lastActive);
+      .sort((a, b) => (b.name === currentProfileId ? 1 : -1)); // Ensure selected profile stays on top
     
     setAccounts(updatedAccounts);
-  }, [profiles]);
+  }, [profiles, currentProfileId]);
 
   const countStatuses = (accounts) => {
     let compliant = 0;
@@ -86,7 +86,7 @@ const Homepage = () => {
       </Typography>
       {accounts.map((account, index) => (
         <Box key={index} sx={{ marginTop: 2 }}>
-          <Typography variant="h6" onClick={() => handleAccountClick(account.name)} style={{ cursor: 'pointer' }}>
+          <Typography variant="h6" onClick={() => handleAccountClick(account.name)} style={{ cursor: 'pointer', fontWeight: account.name === currentProfileId ? 'bold' : 'normal' }}>
             {account.name}
           </Typography>
           <Grid container spacing={2}>
