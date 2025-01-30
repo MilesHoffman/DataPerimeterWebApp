@@ -81,6 +81,13 @@ function App() {
 
     // App bar for the website.
     const MyAppBar = () => {
+        const {removeAllProfiles} = useContext(ProfileContext);
+
+        const handleLogoutAll = () => {
+            removeAllProfiles();
+            handleCloseProfileMenu();
+        }
+
         return (
             <AppBar position='fixed'>
                 <Toolbar>
@@ -112,7 +119,7 @@ function App() {
                     >
                         <MenuItem onClick={handleLoginNavigate}>Login</MenuItem>
                         <DisplayProfiles />
-                        <MenuItem onClick={handleCloseProfileMenu}>Logout All</MenuItem>
+                        <MenuItem onClick={handleLogoutAll}>Logout All</MenuItem>
                     </Menu>
                 </Toolbar>
             </AppBar>

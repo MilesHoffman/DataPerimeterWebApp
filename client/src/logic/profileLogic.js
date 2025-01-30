@@ -63,6 +63,11 @@ export const ProfileProvider = ({ children }) => {
 		}
 	};
 
+	const removeAllProfiles = () => {
+		setProfiles([])
+		setCurrentProfileVar(null)
+	}
+
 	// Sets the current profile to the specified userId of the profile
 	const setCurrentProfile = (name) => {
 		name = name.trim()
@@ -82,6 +87,7 @@ export const ProfileProvider = ({ children }) => {
 				addProfile,
 				removeProfile,
 				setCurrentProfile,
+				removeAllProfiles,
 				currentProfile
 		}}>
 			{children}
