@@ -36,20 +36,20 @@ const DashboardCard = styled(Paper)(({ status }) => ({
 
 const Homepage = () => {
   const navigate = useNavigate();
-  const { profiles, setCurrentProfile, currentProfileId } = useContext(ProfileContext);
+  const { profiles, currentProfile } = useContext(ProfileContext);
   const [accounts, setAccounts] = useState([]);
 
   useEffect(() => {
-    const updatedAccounts = Object.values(profiles)
+    // Ensure selected profile is at the top and update resource lists dynamically
+    const updatedAccounts = profiles
       .map(profile => ({
         name: profile.name,
         resources: profile.resources || [],
-        lastActive: profile.lastActive || 0,
       }))
-      .sort((a, b) => (b.name === currentProfileId ? 1 : -1)); // Ensure selected profile stays on top
+      .sort((a, b) => (b.name === currentProfile.name ? 1 : -1));
     
     setAccounts(updatedAccounts);
-  }, [profiles, currentProfileId]);
+  }, [profiles, currentProfile]);
 
   const countStatuses = (accounts) => {
     let compliant = 0;
@@ -68,8 +68,8 @@ const Homepage = () => {
 
   const { compliant, nonCompliant } = countStatuses(accounts);
 
-  const handleAccountClick = (accountName) => {
-    setCurrentProfile(accountName);
+  const handleResourceClick = (resource) => {
+    navigate('/resourcePage', { state: { resource } });
   };
 
   return (
@@ -86,13 +86,13 @@ const Homepage = () => {
       </Typography>
       {accounts.map((account, index) => (
         <Box key={index} sx={{ marginTop: 2 }}>
-          <Typography variant="h6" onClick={() => handleAccountClick(account.name)} style={{ cursor: 'pointer', fontWeight: account.name === currentProfileId ? 'bold' : 'normal' }}>
+          <Typography variant="h6" style={{ fontWeight: account.name === currentProfile.name ? 'bold' : 'normal' }}>
             {account.name}
           </Typography>
           <Grid container spacing={2}>
             {account.resources.map((resource, rIndex) => (
               <Grid item xs={12} sm={6} key={rIndex}>
-                <DashboardCard status={resource.status}>
+                <DashboardCard status={resource.status} onClick={() => handleResourceClick(resource)}>
                   <Typography variant="h6">{resource.status === 'compliant' ? '✔' : '✖'} {resource.name}</Typography>
                   <Typography variant="body2">{resource.type} • {resource.files} Files</Typography>
                 </DashboardCard>
