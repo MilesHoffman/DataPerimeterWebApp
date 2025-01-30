@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Box, Typography, Grid, Paper } from '@mui/material';
 import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
+import ProfileContext from "../logic/profileLogic";
 
 const DashboardContainer = styled(Box)({
   padding: '20px',
@@ -35,72 +36,40 @@ const DashboardCard = styled(Paper)(({ status }) => ({
 
 const Homepage = () => {
   const navigate = useNavigate();
-  const [accounts, setAccounts] = useState([
-    { name: 'Dog LLC', resources: [
-      { name: 'Happy Dogs', type: 'S3 Bucket', files: 3, status: 'compliant' },
-      { name: 'Dog EC2', type: 'EC2 Instance', files: 0, status: 'compliant' }
-    ]},
-    { name: 'Competitor LLC', resources: [
-      { name: 'Stolen Pics', type: 'S3 Bucket', files: 3, status: 'non-compliant' },
-      { name: 'Competitor EC2', type: 'EC2 Instance', files: 0, status: 'non-compliant' }
-    ]},
-    { name: 'Puppy LLC', resources: [
-      { name: 'Little Puppies', type: 'S3 Bucket', files: 5, status: 'compliant' },
-      { name: 'Puppy EC2', type: 'EC2 Instance', files: 0, status: 'compliant' }
-    ]}
-  ]);
+  const { profiles, setCurrentProfile } = useContext(ProfileContext);
+  const [accounts, setAccounts] = useState([]);
 
-  const addNewAccount = (newAccount) => {
-    setAccounts(prevAccounts => [newAccount, ...prevAccounts]);
-  };
+  useEffect(() => {
+    const updatedAccounts = Object.values(profiles)
+      .map(profile => ({
+        name: profile.name,
+        resources: profile.resources || [],
+        lastActive: profile.lastActive || 0,
+      }))
+      .sort((a, b) => b.lastActive - a.lastActive);
+    
+    setAccounts(updatedAccounts);
+  }, [profiles]);
 
   const countStatuses = (accounts) => {
     let compliant = 0;
     let nonCompliant = 0;
-
     accounts.forEach(account => {
       account.resources.forEach(resource => {
         if (resource.status === 'compliant') {
           compliant++;
-        } else if (resource.status === 'non-compliant') {
+        } else {
           nonCompliant++;
         }
       });
     });
-
     return { compliant, nonCompliant };
   };
 
   const { compliant, nonCompliant } = countStatuses(accounts);
 
-  useEffect(() => {
-    // replace the fetchAccountStatuses function with a real API call
-    const fetchAccountStatuses = async () => {
-      // Simulating an API response
-      const updatedAccounts = [
-        { name: 'Dog LLC', resources: [
-          { name: 'Happy Dogs', type: 'S3 Bucket', files: 3, status: 'compliant' },
-          { name: 'Dog EC2', type: 'EC2 Instance', files: 0, status: 'compliant' }
-        ]},
-        { name: 'Competitor LLC', resources: [
-          { name: 'Stolen Pics', type: 'S3 Bucket', files: 3, status: 'non-compliant' },
-          { name: 'Competitor EC2', type: 'EC2 Instance', files: 0, status: 'non-compliant' }
-        ]},
-        { name: 'Puppy LLC', resources: [
-          { name: 'Little Puppies', type: 'S3 Bucket', files: 5, status: 'compliant' },
-          { name: 'Puppy EC2', type: 'EC2 Instance', files: 0, status: 'compliant' }
-        ]}
-      ];
-
-      // Update account statuses dynamically
-      setAccounts(updatedAccounts);
-    };
-
-    fetchAccountStatuses();
-  }, []);
-
-  const handleCardClick = (resource) => {
-    navigate('/resourcePage', { state: { resource } });
+  const handleAccountClick = (accountName) => {
+    setCurrentProfile(accountName);
   };
 
   return (
@@ -117,11 +86,13 @@ const Homepage = () => {
       </Typography>
       {accounts.map((account, index) => (
         <Box key={index} sx={{ marginTop: 2 }}>
-          <Typography variant="h6">{account.name}</Typography>
+          <Typography variant="h6" onClick={() => handleAccountClick(account.name)} style={{ cursor: 'pointer' }}>
+            {account.name}
+          </Typography>
           <Grid container spacing={2}>
             {account.resources.map((resource, rIndex) => (
               <Grid item xs={12} sm={6} key={rIndex}>
-                <DashboardCard status={resource.status} onClick={() => handleCardClick(resource.name)}>
+                <DashboardCard status={resource.status}>
                   <Typography variant="h6">{resource.status === 'compliant' ? '✔' : '✖'} {resource.name}</Typography>
                   <Typography variant="body2">{resource.type} • {resource.files} Files</Typography>
                 </DashboardCard>
