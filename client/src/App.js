@@ -81,7 +81,7 @@ function App() {
 
     // App bar for the website.
     const MyAppBar = () => {
-        const {removeAllProfiles} = useContext(ProfileContext);
+        const {removeAllProfiles, currentProfile} = useContext(ProfileContext);
 
         const handleLogoutAll = () => {
             removeAllProfiles();
@@ -95,6 +95,10 @@ function App() {
                         {getPageTitle()}
                     </Typography>
 
+                    <Typography variant={'h5'} color={'textPrimary'}>
+                        {currentProfile.name}
+                    </Typography>
+
                     <IconButton
                         size='large'
                         edge='end'
@@ -104,6 +108,7 @@ function App() {
                     >
                         <AccountCircleIcon />
                     </IconButton>
+
                     <Menu
                         anchorEl={anchorEl}
                         open={open}
