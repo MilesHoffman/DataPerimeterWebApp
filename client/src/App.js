@@ -120,22 +120,24 @@ function App() {
     };
 
     const ProfileCard = ({ name, onClick }) => {
-        const { currentProfileId, setCurrentProfile, removeProfile } = useContext(ProfileContext);
+        const { currentProfile, setCurrentProfile, removeProfile } = useContext(ProfileContext);
 
         // Sets the current profile
         const handleProfileCardClick = () => {
             setCurrentProfile(name);
             onClick();
-        }
+        };
 
         // Logs out the profile
-        const handleLogout = () => {
-            removeProfile(name)
-        }
+        const handleLogout = (event) => {
+            event.stopPropagation(); // Prevent event bubbling
+            removeProfile(name);
+            onClick();
+        };
 
         return (
             <MenuItem onClick={handleProfileCardClick}>
-                <Typography sx={{ flex: 1, fontWeight: currentProfileId === name ? 'bold' : 'normal' }}>
+                <Typography sx={{ flex: 1, fontWeight: currentProfile.name === name ? 'bold' : 'normal' }}>
                     {name}
                 </Typography>
                 <IconButton onClick={handleLogout}>
@@ -150,8 +152,8 @@ function App() {
 
         return (
             <div>
-                {Object.entries(profiles).map(([userId, profile]) => (
-                    <ProfileCard key={userId} onClick={handleCloseProfileMenu} name={profile.name} />
+                {(profiles).map((profile) => (
+                    <ProfileCard key={profile.name} onClick={handleCloseProfileMenu} name={profile.name} />
                 ))}
             </div>
         );

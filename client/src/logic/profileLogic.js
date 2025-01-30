@@ -1,47 +1,92 @@
 import React, { createContext, useState } from 'react';
-import { Profile } from "../classes/profileClass";
+import {Profile} from "../classes/profileClass";
+import {flushSync} from "react-dom";
 
+
+// Temporary simulated profiles
+let dog_llc = new Profile(
+	'Dog LLC',
+	[
+		{ name: 'Happy Dogs', type: 'S3 Bucket', files: 3, status: 'compliant' },
+		{ name: 'Dog EC2', type: 'EC2 Instance', files: 0, status: 'compliant' }
+	]
+)
+
+let puppy_llc = new Profile(
+	'Puppy LLC',
+	[
+		{ name: 'Little Puppies', type: 'S3 Bucket', files: 5, status: 'compliant' },
+		{ name: 'Puppy EC2', type: 'EC2 Instance', files: 0, status: 'compliant' }
+	]
+)
+
+let competitor = new Profile(
+	'Competitor LLC',
+	[
+		{ name: 'Stolen Pics', type: 'S3 Bucket', files: 3, status: 'non-compliant' },
+		{ name: 'Competitor EC2', type: 'EC2 Instance', files: 0, status: 'non-compliant' }
+	]
+)
+
+
+// Lets us access profiles across the app.
 const ProfileContext = createContext();
 
 export const ProfileProvider = ({ children }) => {
-    const [profiles, setProfiles] = useState({
-        'Dog LLC': new Profile('Dog LLC', Date.now()),
-        'Puppy LLC': new Profile('Puppy LLC', Date.now() - 1000),
-    });
 
-    const [currentProfileId, setCurrentProfileId] = useState(Object.keys(profiles)[0] || '');
+	// temp values and initializing the profile var
+	const [profiles, setProfiles] = useState([
+		dog_llc, puppy_llc, competitor
+	]);
 
-    const addProfile = (userId, profileData) => {
-        const newProfile = new Profile(profileData.name, Date.now());
-        setProfiles(prevProfiles => ({ ...prevProfiles, [userId]: newProfile }));
-        setCurrentProfile(userId);
-    };
+	const tempId = profiles.length > 0 ? profiles[0] : null;
+	const [currentProfile, setCurrentProfileVar] = useState(tempId);
 
-    const removeProfile = (userId) => {
-        setProfiles(prevProfiles => {
-            const updatedProfiles = { ...prevProfiles };
-            delete updatedProfiles[userId];
-            return updatedProfiles;
-        });
-        setCurrentProfile(Object.keys(profiles)[0] || '');
-    };
 
-    const setCurrentProfile = (userId) => {
-        setProfiles(prevProfiles => {
-            const updatedProfiles = {
-                ...prevProfiles,
-                [userId]: { ...prevProfiles[userId], lastActive: Date.now() }
-            };
-            return updatedProfiles;
-        });
-        setCurrentProfileId(userId);
-    };
+	// Use this after a successful log in. Will need to be updated.
+	const addProfile = (userId, profileData) => {
+		const newProfile = new Profile(profileData.name);
+		setProfiles([ ...profiles, newProfile ]);
 
-    return (
-        <ProfileContext.Provider value={{ profiles, addProfile, removeProfile, setCurrentProfile, currentProfileId }}>
-            {children}
-        </ProfileContext.Provider>
-    );
+		setCurrentProfileVar(userId)
+	};
+
+	// Use this to log out
+	const removeProfile = (name) => {
+		const updatedProfiles = profiles.filter(profile => profile.name !== name);
+		setProfiles(updatedProfiles);
+
+		// Update currentProfile if the removed profile was the current one
+		if (currentProfile.name === name) {
+			const nextProfileId = updatedProfiles.length > 0 ? updatedProfiles[0] : null;
+			setCurrentProfileVar(nextProfileId);
+		}
+	};
+
+	// Sets the current profile to the specified userId of the profile
+	const setCurrentProfile = (name) => {
+		name = name.trim()
+		console.log('Changing current profile to:', name)
+		if (profiles.filter((profile)=> profile.name === name) ){
+			setCurrentProfileVar(profiles.find(profile => profile.name === name))
+		}
+		else{
+			console.log('Invalid profile name')
+		}
+	}
+
+	return (
+		<ProfileContext.Provider
+			value={{
+				profiles,
+				addProfile,
+				removeProfile,
+				setCurrentProfile,
+				currentProfile
+		}}>
+			{children}
+		</ProfileContext.Provider>
+	);
 };
 
 export default ProfileContext;
