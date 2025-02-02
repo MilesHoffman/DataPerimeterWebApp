@@ -1,7 +1,21 @@
-import React from "react";
-import { Box, Button, TextField, Typography, Divider } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Divider,
+  Switch,
+  FormControlLabel,
+} from "@mui/material";
 
 function LoginPage() {
+  const [toggleState, setToggleState] = useState(false);
+
+  const handleToggleChange = (event) => {
+    setToggleState(event.target.checked);
+  };
+
   return (
     <Box
       display="flex"
@@ -9,21 +23,14 @@ function LoginPage() {
       justifyContent="center"
       minHeight="100vh"
       bgcolor="grey.100"
+      p={2} // Ensures spacing is responsive
     >
-      <Box
-        bgcolor="white"
-        p={4}
-        borderRadius={2}
-        boxShadow={3}
-        width="100%"
-        maxWidth={400}
-        textAlign="center"
-      >
+      <Box textAlign="center" width={{ xs: "90%", sm: "80%", md: 400 }}>
         <Box display="flex" justifyContent="center" mb={3}>
           <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvHNaZt_Y2iwZHS3DK7g7fqknWNPjCWvCGRQ&s"
+            src="https://www.baylineins.com/wp-content/uploads/2016/09/erie-insurance-logo.png"
             alt="Erie Insurance Logo"
-            style={{ height: "50px" }}
+            style={{ height: "100px" }}
           />
         </Box>
         <Typography variant="h6" gutterBottom>
@@ -49,6 +56,12 @@ function LoginPage() {
             type="password"
             variant="outlined"
             fullWidth
+          />
+          <FormControlLabel
+            control={
+              <Switch checked={toggleState} onChange={handleToggleChange} />
+            }
+            label="ID Toggle"
           />
           <Button variant="contained" color="primary" fullWidth type="submit">
             Sign in
