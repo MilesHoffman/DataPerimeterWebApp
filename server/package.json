@@ -10,6 +10,12 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "express": "^4.21.2"
+    "@aws-sdk/client-cognito-identity": "^3.738.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.738.0",
+    "@aws-sdk/client-s3": "^3.738.0",
+    "amazon-cognito-identity-js": "^6.3.12",
+    "aws-sdk": "^2.1692.0",
+    "express": "^4.21.2",
+    "openid-client": "^6.1.7"
   }
 }

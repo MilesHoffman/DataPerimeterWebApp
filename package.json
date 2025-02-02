@@ -25,8 +25,14 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^6.4.1",
+    "amazon-cognito-identity-js": "^6.3.12",
+    "aws-sdk": "^2.1692.0",
     "concurrently": "^9.1.2",
     "nodemon": "^3.1.9",
+    "openid-client": "^6.1.7",
     "web-vitals": "^4.2.4"
+  },
+  "devDependencies": {
+    "webpack-dev-server": "^5.2.0"
   }
 }
