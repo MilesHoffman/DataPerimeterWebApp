@@ -43,15 +43,15 @@ function LoginPage() {
       console.log("Authentication successful:", tokens);
 
       // Save tokens in localStorage for later use
-      localStorage.setItem("accessToken", tokens.accessToken);
-      localStorage.setItem("idToken", tokens.idToken);
-      localStorage.setItem("refreshToken", tokens.refreshToken);
+      //localStorage.setItem("accessToken", tokens.accessToken);
+      //localStorage.setItem("idToken", tokens.idToken);
+      //localStorage.setItem("refreshToken", tokens.refreshToken);
 
       // If the toggle is on, also store the static credentials and add a new profile
       if (toggleState) {
-        localStorage.setItem("userPoolId", tokens.userPoolId);
-        localStorage.setItem("clientId", tokens.clientId);
-        localStorage.setItem("identityPoolId", tokens.identityPoolId);
+        //localStorage.setItem("userPoolId", tokens.userPoolId);
+        //localStorage.setItem("clientId", tokens.clientId);
+        //localStorage.setItem("identityPoolId", tokens.identityPoolId);
 
         // Create a profile data object to add to the global state
         const profileData = {
@@ -111,15 +111,12 @@ function LoginPage() {
           <TextField
             label="Enter Email / Username"
             variant="outlined"
-            fullWidth
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
           <TextField
             label="Password"
-            type="password"
             variant="outlined"
-            fullWidth
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -135,7 +132,7 @@ function LoginPage() {
             }
             label="ID Toggle"
           />
-          <Button variant="contained" color="primary" fullWidth type="submit">
+          <Button variant="contained" color="primary"  type="submit">
             Sign in
           </Button>
         </Box>
@@ -145,10 +142,10 @@ function LoginPage() {
           Logged accounts
         </Typography>
         <Box mt={2} display="flex" flexDirection="column" gap={1}>
-          <Button variant="outlined" fullWidth>
+          <Button variant="outlined">
             Person 1
           </Button>
-          <Button variant="outlined" fullWidth>
+          <Button variant="outlined">
             Person 2
           </Button>
         </Box>

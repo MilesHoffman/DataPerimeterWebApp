@@ -2,12 +2,12 @@
   "name": "dataperimeterwebapp",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server/index.js",
     "client": "npm start --prefix client",
-    "server": "nodemon server/index.js",
+    "server": "nodemon server/server.js",
     "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "repository": {

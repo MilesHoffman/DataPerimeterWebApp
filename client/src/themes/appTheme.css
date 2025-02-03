@@ -2,18 +2,19 @@
 .app-container {
   display: flex;
   min-height: 100vh;
-  padding-top: 64px; /* Adjust if your AppBar height is different */
+  /*padding-top: 64px; /* Adjust if your AppBar height is different */
 }
 
 .sidebar {
   width: 200px;
-  background: #949af9;
+  background: #232F3E;
   position: fixed;
   height: 100%;
+  z-index: 100;
 }
 
 .content-area {
   flex: 1;
-  padding: 10px;
-  padding-left: 210px; /* Adjust based on sidebar width */
+  /* Adjust based on sidebar width */
+  padding: 64px 10px 10px 210px;
 }
