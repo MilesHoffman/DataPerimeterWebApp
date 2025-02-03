@@ -1,9 +1,14 @@
-// server/server.js
+/**
+ * Express server for handling user authentication with Cognito.
+ * This file sets up the API endpoint for logging in and attaches static credentials
+ * if a specific toggle is on. It uses Express, CORS, and Body Parser.
+ */
+
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
-// Import the Cognito functions and static credential values using the correct relative path
+// Import Cognito functions and static credentials from the proper file
 const {
   authenticateUser,
   refreshSession,
@@ -14,18 +19,19 @@ const {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS so that your React application can access this API
+// Enable CORS so our React app can call this API
 app.use(cors());
 
-// Parse JSON bodies
+// Parse JSON request bodies
 app.use(bodyParser.json());
 
-// API endpoint for login
+// API endpoint for login requests
 app.post("/api/login", async (req, res) => {
+  // Destructure username, password, and idToggle from the request body
   const { username, password, idToggle } = req.body;
   console.log("Received login request:", { username, idToggle });
 
-  // If the toggle is off, return an error response immediately
+  // If the idToggle is off, return an error immediately
   if (!idToggle) {
     console.log("ID Toggle is OFF. Static credentials will not be provided.");
     return res.status(401).json({
@@ -35,11 +41,11 @@ app.post("/api/login", async (req, res) => {
   }
 
   try {
-    // Authenticate the user using Cognito
+    // Authenticate the user with Cognito
     const tokens = await authenticateUser(username, password);
     console.log("Cognito authentication successful:", tokens);
 
-    // Since the toggle is on, attach the static credentials.
+    // Attach static credentials since the toggle is on
     tokens.userPoolId = poolData.UserPoolId;
     tokens.clientId = poolData.ClientId;
     tokens.identityPoolId = IDENTITY_POOL_ID;
@@ -49,9 +55,11 @@ app.post("/api/login", async (req, res) => {
       identityPoolId: IDENTITY_POOL_ID,
     });
 
+    // Send the tokens back to the client
     console.log("Sending tokens back to client:", tokens);
     res.json(tokens);
   } catch (error) {
+    // Log and send back an error response if something goes wrong
     console.error("Error during login:", error);
     res.status(500).json({
       message: "Login failed",
@@ -60,7 +68,7 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// Start the Express server
+// Start the Express server on the specified port
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
