@@ -1,3 +1,4 @@
+// server/apis/cognito_api.js
 const {
   CognitoIdentityProviderClient,
   InitiateAuthCommand,
@@ -18,56 +19,69 @@ const config = { region: REGION };
 
 // Cognito User Pool details
 const poolData = {
-  UserPoolId: "us-east-2_Z4LAAO6F8", // User pool ID
-  ClientId: "5ku6g318514rb9u6hmn1dgvuvt", // Application client ID
+  UserPoolId: "us-east-2_Z4LAAO6F8", //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  /* Can see these in the AWS cognito API, is a pool of users */
+  ClientId: "5ku6g318514rb9u6hmn1dgvuvt", //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  /* An ID that tells AWS what application you're trying to use */
 };
 
 // Cognito Identity Pool ID
-const IDENTITY_POOL_ID = "us-east-2:b3a5d7ea-d40d-4e87-a126-a3a8f953c92c";
+const IDENTITY_POOL_ID = "us-east-2:b3a5d7ea-d40d-4e87-a126-a3a8f953c92c"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/* Way to connect a user to an IM rule, right now is an admin */
 
-// Client initialization
+// Client Initialization
+
+// Client for interacting with Cognito Identity (federated identities)
 const cognitoIdentityClient = new CognitoIdentityClient(config);
+
+// Client for interacting with Cognito User Pools
 const cognitoIdentityProviderClient = new CognitoIdentityProviderClient(config);
 
 /**
  * Authenticates a user with Cognito User Pools and handles challenges.
+ *
  * @param {string} username - User's username.
  * @param {string} password - User's password.
- * @returns {object} - Authentication tokens.
+ * @returns {object} - Authentication tokens (accessToken, idToken, refreshToken).
  */
 async function authenticateUser(username, password) {
+  // Authentication parameters
   const params = {
     AuthFlow: "USER_PASSWORD_AUTH",
     ClientId: poolData.ClientId,
     AuthParameters: { USERNAME: username, PASSWORD: password },
   };
 
+  // Initiate authentication
   const command = new InitiateAuthCommand(params);
 
   try {
     const response = await cognitoIdentityProviderClient.send(command);
 
-    // Handle NEW_PASSWORD_REQUIRED challenge
+    // Handle challenges. Basically handle 'Set a new password'
     if (response.ChallengeName === "NEW_PASSWORD_REQUIRED") {
       console.log("Challenge: User needs to set a new password.");
-      const newPassword = "Test_1234"; // Replace with logic to get a new password
+      const newPassword = "Test_1234"; // Get new password
 
       const challengeResponses = {
         USERNAME: username,
         NEW_PASSWORD: newPassword,
       };
 
-      const respondParams = {
+      const respondToAuthChallengeParams = {
         ChallengeName: "NEW_PASSWORD_REQUIRED",
         ClientId: poolData.ClientId,
         ChallengeResponses: challengeResponses,
         Session: response.Session,
       };
 
-      const respondCommand = new RespondToAuthChallengeCommand(respondParams);
-      const newPasswordResponse = await cognitoIdentityProviderClient.send(
-        respondCommand
+      const respondToAuthChallengeCommand = new RespondToAuthChallengeCommand(
+        respondToAuthChallengeParams
       );
+      const newPasswordResponse = await cognitoIdentityProviderClient.send(
+        respondToAuthChallengeCommand
+      );
+
       console.log("New password set successfully.");
       return {
         accessToken: newPasswordResponse.AuthenticationResult.AccessToken,
@@ -82,17 +96,20 @@ async function authenticateUser(username, password) {
 
       const challengeResponses = { USERNAME: username, PASSWORD: password };
 
-      const respondParams = {
+      const respondToAuthChallengeParams = {
         ChallengeName: "PASSWORD_VERIFIER",
         ClientId: poolData.ClientId,
         ChallengeResponses: challengeResponses,
         Session: response.Session,
       };
 
-      const respondCommand = new RespondToAuthChallengeCommand(respondParams);
-      const passwordVerifierResponse = await cognitoIdentityProviderClient.send(
-        respondCommand
+      const respondToAuthChallengeCommand = new RespondToAuthChallengeCommand(
+        respondToAuthChallengeParams
       );
+      const passwordVerifierResponse = await cognitoIdentityProviderClient.send(
+        respondToAuthChallengeCommand
+      );
+
       console.log("Password verified successfully.");
       return {
         accessToken: passwordVerifierResponse.AuthenticationResult.AccessToken,
@@ -116,16 +133,19 @@ async function authenticateUser(username, password) {
 
 /**
  * Refreshes the user's session using a refresh token.
+ *
  * @param {string} refreshToken - The refresh token.
  * @returns {object} - New access and ID tokens.
  */
 async function refreshSession(refreshToken) {
+  // Parameters for refreshing the session
   const params = {
     AuthFlow: "REFRESH_TOKEN_AUTH",
     ClientId: poolData.ClientId,
     AuthParameters: { REFRESH_TOKEN: refreshToken },
   };
 
+  // Command to initiate the refresh.
   const command = new InitiateAuthCommand(params);
 
   try {
@@ -143,15 +163,16 @@ async function refreshSession(refreshToken) {
 
 // Main function for testing the authentication and S3 access
 async function main() {
-  const USERNAME = "miles";
-  const PASSWORD = "Test_1234";
+  /* General credentials for individuals, only a total of 3 sets for userID, ClientID, & IdentityPoolID */
+  const USERNAME = "miles"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  const PASSWORD = "Test_1234"; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   try {
     // Authenticate the user
     const tokens = await authenticateUser(USERNAME, PASSWORD);
     console.log("User authenticated.");
 
-    // Get the Cognito Identity D
+    // Get the user's Cognito Identity ID
     const getIdParams = {
       IdentityPoolId: IDENTITY_POOL_ID,
       Logins: {
@@ -163,7 +184,7 @@ async function main() {
     const getIdResponse = await cognitoIdentityClient.send(getIdCommand);
     console.log("Cognito Identity ID:", getIdResponse.IdentityId);
 
-    // Get temporary AWS credentials using the Identity ID
+    // Get temporary AWS credentials using the Cognito Identity ID
     const getCredentialsParams = {
       IdentityId: getIdResponse.IdentityId,
       Logins: {
@@ -177,17 +198,18 @@ async function main() {
     const credentialsResponse = await cognitoIdentityClient.send(
       getCredentialsCommand
     );
-
-    // These keys will be stored in profileClass.js and sent to the profile provider
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    /* When you sign in these 3 keys will be returned and you'll want to store them in the profileClass.js, afterwhich you'll send them to the profile provider */
+    // Extract the credentials
     const credentials = {
       accessKeyId: credentialsResponse.Credentials.AccessKeyId,
       secretAccessKey: credentialsResponse.Credentials.SecretKey,
       sessionToken: credentialsResponse.Credentials.SessionToken,
     };
-    console.log("AWS credentials obtained.");
 
+    console.log("AWS credentials obtained.");
     // Create an S3 client with the temporary credentials and list buckets
-    const s3Client = new S3Client({ region: REGION, credentials });
+    const s3Client = new S3Client({ region: REGION, credentials: credentials });
     const listBucketsCommand = new ListBucketsCommand({});
     try {
       const data = await s3Client.send(listBucketsCommand);
@@ -203,7 +225,7 @@ async function main() {
   }
 }
 
-// Run the test if this file is executed directly.
+// Run the file to test out the script.
 if (require.main === module) {
   main();
 }
