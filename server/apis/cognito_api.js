@@ -247,4 +247,9 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { authenticateUser, refreshSession };
+module.exports = {
+  authenticateUser,
+  refreshSession,
+  poolData,
+  IDENTITY_POOL_ID,
+};
