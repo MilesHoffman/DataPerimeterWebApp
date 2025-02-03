@@ -98,48 +98,48 @@ function App() {
         const colors = useTheme().palette
 
         return (
-            <AppBar position='fixed' sx={{left: 200, background: colors.primary.light}} >
+            <AppBar position='fixed' sx={{paddingLeft: 25, background: colors.primary.light, zIndex: 99}}  >
                 <Toolbar>
 
                     <Typography variant='h4' color={'textPrimary'} sx={{ flexGrow: 1 }}>
                         {getPageTitle()}
                     </Typography>
 
-          <Typography variant={"h5"} color={"textPrimary"} sx={{ mr: 2 }}>
-            {currentProfile ? currentProfile.name : ""}
-          </Typography>
+                    <Typography variant={"h5"} color={"textPrimary"} sx={{ mr: 2 }}>
+                        {currentProfile ? currentProfile.name : ""}
+                    </Typography>
 
-          <IconButton
-            size="large"
-            edge="end"
-            color="inherit"
-            aria-label="profile"
-            onClick={handleOpenProfileMenu}
-          >
-            <AccountCircleIcon />
-          </IconButton>
+                    <IconButton
+                        size="large"
+                        edge="end"
+                        color="inherit"
+                        aria-label="profile"
+                        onClick={handleOpenProfileMenu}
+                    >
+                    <AccountCircleIcon />
+                    </IconButton>
 
-          <Menu
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleCloseProfileMenu}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "right",
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-          >
-            <MenuItem onClick={handleLoginNavigate}>Login</MenuItem>
-            <DisplayProfiles />
-            <MenuItem onClick={handleLogoutAll}>Logout All</MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
-    );
-  };
+                    <Menu
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleCloseProfileMenu}
+                        anchorOrigin={{
+                          vertical: "bottom",
+                          horizontal: "right",
+                        }}
+                        transformOrigin={{
+                          vertical: "top",
+                          horizontal: "right",
+                        }}
+                    >
+                        <MenuItem onClick={handleLoginNavigate}>Login</MenuItem>
+                        <DisplayProfiles />
+                        <MenuItem onClick={handleLogoutAll}>Logout All</MenuItem>
+                    </Menu>
+                </Toolbar>
+            </AppBar>
+        );
+    };
 
   const ProfileCard = ({ name, onClick }) => {
     const { currentProfile, setCurrentProfile, removeProfile } =

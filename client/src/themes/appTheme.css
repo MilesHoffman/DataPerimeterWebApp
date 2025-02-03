@@ -10,6 +10,7 @@
   background: #232F3E;
   position: fixed;
   height: 100%;
+  z-index: 100;
 }
 
 .content-area {
