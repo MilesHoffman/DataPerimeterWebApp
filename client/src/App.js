@@ -6,22 +6,23 @@ import React, { useContext, useState } from "react";
 import HomePage from "./Pages/HomePage";
 import "./themes/appTheme.css";
 import {
-  AppBar,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Typography,
-  IconButton,
-  Tabs,
-  Tab,
-  CssBaseline,
-} from "@mui/material";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import CloseIcon from "@mui/icons-material/Close";
-import LoginPage from "./Pages/LoginPage";
-import Policies from "./Pages/Policies";
-import ProfileContext from "./logic/profileLogic";
-import ProfileList from "./Pages/ProfileList"; // This displays all profiles
+    AppBar,
+    Menu,
+    MenuItem,
+    Toolbar,
+    Typography,
+    IconButton,
+    Tabs,
+    Tab,
+    CssBaseline, Icon, useTheme,
+} from '@mui/material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import CloseIcon from '@mui/icons-material/Close';
+import LoginPage from './Pages/LoginPage';
+import ProfileContext, {profiles} from "./logic/profileLogic";
+import Policies from './Pages/Policies';
+import SecurityIcon from '@mui/icons-material/Security';
+import ProfileList from "./Pages/ProfileList";
 
 function App() {
   const location = useLocation();
@@ -94,12 +95,15 @@ function App() {
       handleCloseProfileMenu();
     };
 
-    return (
-      <AppBar position="fixed">
-        <Toolbar>
-          <Typography variant="h4" sx={{ flexGrow: 1 }}>
-            {getPageTitle()}
-          </Typography>
+        const colors = useTheme().palette
+
+        return (
+            <AppBar position='fixed' sx={{left: 200, background: colors.primary.light}} >
+                <Toolbar>
+
+                    <Typography variant='h4' color={'textPrimary'} sx={{ flexGrow: 1 }}>
+                        {getPageTitle()}
+                    </Typography>
 
           <Typography variant={"h5"} color={"textPrimary"} sx={{ mr: 2 }}>
             {currentProfile ? currentProfile.name : ""}
@@ -190,35 +194,47 @@ function App() {
     );
   };
 
-  return (
-    <div className="app-container">
-      <CssBaseline />
-      {MyAppBar()}
-      <div className="sidebar">
-        <Tabs
-          value={getCurrentTab()}
-          onChange={handleTabChange}
-          textColor="inherit"
-          orientation="vertical"
-        >
-          <Tab label="Home" value="/" />
-          <Tab label="Login" value="/login" />
-          <Tab label="Resource Page (temp)" value="/resourcePage" />
-          <Tab label="Policies" value="/policies" />
-          <Tab label="Profiles" value="/profiles" />
-        </Tabs>
-      </div>
-      <div className="content-area">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/resourcePage" element={<ResourcePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/policies" element={<Policies />} />
-          <Route path="/profiles" element={<ProfileList />} />
-        </Routes>
-      </div>
-    </div>
-  );
+    const tabfontSize = 18
+
+    return (
+        <div className='app-container'>
+            <CssBaseline />
+            {MyAppBar()}
+
+            <div className='sidebar'>
+                <Tabs
+                    value={getCurrentTab()}
+                    onChange={handleTabChange}
+                    textColor='secondary'
+                    orientation='vertical'
+
+                >
+                    <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                        <SecurityIcon sx={{fontSize: 55}}  color={'secondary'}/>
+                        <Typography variant={'h3'} color={'textSecondary'}>
+                            AWS
+                        </Typography>
+                    </div>
+
+                    <Tab sx={{fontSize: tabfontSize}} label='Home' value='/' />
+                    <Tab sx={{fontSize: tabfontSize}} label='Login' value='/login' />
+                    <Tab sx={{fontSize: tabfontSize}} label='Resource Page (temp)' value='/resourcePage' />
+                    <Tab sx={{fontSize: tabfontSize}} label='Policies' value='/policies' />
+                    <Tab sx={{fontSize: tabfontSize}} label='Profiles' value='/profiles' />
+                </Tabs>
+            </div>
+
+            <div className='content-area'>
+                <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/resourcePage" element={<ResourcePage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/policies" element={<Policies />} />
+                    <Route path="/profiles" element={<ProfileList />} />
+                </Routes>
+            </div>
+        </div>
+    );
 }
 
 export default App;

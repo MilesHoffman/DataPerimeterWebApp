@@ -75,7 +75,7 @@ const Policies = () => {
           </Grid>
         ))}
       </Grid>
-      <Dialog open={editorOpen} onClose={closeEditor} fullWidth maxWidth="sm">
+      <Dialog open={editorOpen} onClose={closeEditor} maxWidth="sm">
         <Box p={3}>
           <Typography variant="h6">Editing {selectedPolicy}</Typography>
           <PolicyEditor>
