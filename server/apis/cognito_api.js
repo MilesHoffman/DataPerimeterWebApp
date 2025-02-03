@@ -1,3 +1,4 @@
+// server/apis/cognito_api.js
 const {
   CognitoIdentityProviderClient,
   InitiateAuthCommand,
@@ -211,7 +212,8 @@ async function main() {
     const credentialsResponse = await cognitoIdentityClient.send(
       getCredentialsCommand
     );
-
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    /* When you sign in these 3 keys will be returned and you'll want to store them in the profileClass.js, afterwhich you'll send them to the profile provider*/
     // Extract the credentials
     const credentials = {
       accessKeyId: credentialsResponse.Credentials.AccessKeyId,
@@ -244,3 +246,5 @@ async function main() {
 if (require.main === module) {
   main();
 }
+
+module.exports = { authenticateUser, refreshSession };
