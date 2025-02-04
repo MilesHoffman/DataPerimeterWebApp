@@ -113,7 +113,7 @@ async function getBucketContents(s3Client, bucketName) {
 
 async function main() {
 
-
+   //test profile
     const testProfile = {
         region: "us-east-2",
         credentials: {
