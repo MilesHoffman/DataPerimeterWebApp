@@ -89,7 +89,7 @@ app.post("/api/resource", async (req, res) => {
   }
   //console.log("Entering function")
   const resourceData = await getS3Resources(profile);
-  //console.log("Exit function")
+  console.log("Exit function")
 
   try {
 

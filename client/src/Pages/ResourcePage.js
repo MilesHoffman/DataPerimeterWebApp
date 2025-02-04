@@ -56,7 +56,7 @@ function ResourcePage() {
     const handleClose = () => {
         setAnchorEl(null);
     };
-    /*
+
     const handleTest = async () => {
         const response = await axios.post("http://localhost:5000/api/resource", {
             accessKeyId: 'ASIAVIOZFWO2ICG57MKK',
@@ -68,7 +68,7 @@ function ResourcePage() {
 
         console.log(response)
     };
-    */
+
 
     return (
 
