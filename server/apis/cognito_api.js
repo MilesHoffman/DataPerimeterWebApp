@@ -205,8 +205,9 @@ async function main() {
       accessKeyId: credentialsResponse.Credentials.AccessKeyId,
       secretAccessKey: credentialsResponse.Credentials.SecretKey,
       sessionToken: credentialsResponse.Credentials.SessionToken,
-    };
 
+    };
+    console.log(credentials);
     console.log("AWS credentials obtained.");
     // Create an S3 client with the temporary credentials and list buckets
     const s3Client = new S3Client({ region: REGION, credentials: credentials });

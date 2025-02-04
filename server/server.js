@@ -15,6 +15,7 @@ const {
   poolData,
   IDENTITY_POOL_ID,
 } = require("./apis/cognito_api");
+const {getS3Resources} = require("./apis/resource_api");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -68,7 +69,51 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+//Resource API
+
+
+app.post("/api/resource", async (req, res) => {
+
+  const region= "us-east-2";
+  const { accessKeyId, secretAccessKey, sessionToken, bucketName } = req.body;
+  const credentials = {
+    accessKeyId: accessKeyId,
+    secretAccessKey: secretAccessKey,
+    sessionToken: sessionToken,
+  }
+
+  const profile = {
+    region: region,
+    credentials: credentials,
+    bucketName: bucketName
+  }
+  //console.log("Entering function")
+  const resourceData = await getS3Resources(profile);
+  //console.log("Exit function")
+  /*
+  try {
+
+
+    const resourcesResult = await getS3Resources(profile);
+    if (resourcesResult.success) {
+      console.log("Resources Data:", JSON.stringify(resourcesResult.resources, null, 2));
+    } else {
+      console.error("Error:", resourcesResult.message);
+    }
+
+  } catch (error) {
+    console.error("Main function error:", error);
+  }
+  */
+
+  res.json(resourceData);
+})
+
+
+
 // Start the Express server on the specified port
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+
