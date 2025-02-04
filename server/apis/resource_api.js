@@ -113,6 +113,7 @@ async function getBucketContents(s3Client, bucketName) {
 
 async function main() {
 
+    /*
     const testProfile = {
         region: "us-east-2",
         credentials: {
@@ -123,7 +124,7 @@ async function main() {
         },
         bucketName: "puppy-pics-s3"
     };
-
+    */
     try {
         const result = await listAllBucketsAndContents(testProfile);
         if (result.success) {

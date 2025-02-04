@@ -90,7 +90,7 @@ app.post("/api/resource", async (req, res) => {
   //console.log("Entering function")
   const resourceData = await getS3Resources(profile);
   //console.log("Exit function")
-  /*
+
   try {
 
 
@@ -104,7 +104,7 @@ app.post("/api/resource", async (req, res) => {
   } catch (error) {
     console.error("Main function error:", error);
   }
-  */
+
 
   res.json(resourceData);
 })
