@@ -19,7 +19,7 @@ async function getS3Resources(profile) {
         const listParams = {
             Bucket: profile.bucketName,
         };
-
+    //test
         const listCommand = new ListObjectsV2Command(listParams);
         const listResponse = await s3Client.send(listCommand);
 

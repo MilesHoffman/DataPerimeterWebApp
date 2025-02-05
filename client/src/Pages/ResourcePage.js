@@ -36,7 +36,7 @@ function ResourcePage() {
     const fetchResources = async () => {
         setLoading(true);
         setError(null);
-
+        //test
         try {
             const response = await axios.post("http://localhost:5000/api/resource", {
                 accessKeyId: 'ASIAVIOZFWO2PWLF3MQJ',
