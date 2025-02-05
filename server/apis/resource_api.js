@@ -110,7 +110,7 @@ async function getBucketContents(s3Client, bucketName) {
     }
     return contents;
 }
-
+//test
 async function main() {
 
    //test profile
