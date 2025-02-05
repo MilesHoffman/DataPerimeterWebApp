@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
-
 import IconButton from "@mui/material/IconButton";
-
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -22,7 +20,7 @@ import { Stack } from "@mui/material";
 
 function ResourcePage() {
     const [anchorEl, setAnchorEl] = useState(null);
-    const [resources, setResources] = useState({});
+    const [resources, setResources] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const open = Boolean(anchorEl);
@@ -41,13 +39,14 @@ function ResourcePage() {
 
         try {
             const response = await axios.post("http://localhost:5000/api/resource", {
-                accessKeyId: 'ASIAVIOZFWO2OYNJWQY4',
-                secretAccessKey:'b9lIbhD5sgjSuv8TOI4uBzjnuZVHCESN12V59uA6',
-                sessionToken:'IQoJb3JpZ2luX2VjEDEaCXVzLWVhc3QtMiJIMEYCIQDMGJMIxLg4azjjCTllw5X2l3FeQivfzgmLBwBf7/OZ6wIhAOt39jPo2x6xtn7k95Ms9jOliu4VyaqQRxr9S9HUz0hvKsQECEoQABoMMzYxNzY5NTc5NDQ0IgyqWilNzrpn+xxvOW0qoQSeMTUBXNpQMJ9wKoKxxlWjvfutzqVQPLsy/ETqFAFc2FmzRTKIkcNJqTJLZWOLO+6xgwK/Z0Zol6JOyerHIOdoZWFLq6rU3EpY+b90tf8tyIoByeRig2FISoj4hGLa2odt74ZPNnLMnD05ofsdjGuPfFMURhmrqnCLW48zCbUGVwaBod5+xTA3bYxFhy/ZH9sHuyr9Eznr/M7DalL9elwRfMh+S/KTrBBM5hqUNumLqPr5Sa1jKUwlAU6a8NuKhoO/XtGRg1cW0Ykx/HKygYQF/0stqoQmvg7MR+xw7VWNCQM362hnmSBzV9kn5moQoC6/pDkAxPumqiElYc9InuA0C1tQvHpWa9Vm5uUh2M5mVCb+EZMp+S3pP9agMHiubA9JmviV7KVQtv9zNe+nA3xxpbW//CbaAXoYzOnvb4Cd8NRnULGT+T3TEJcUoOavMzU4qxITK4N1jUSK19gP/eEZtmDQhABnKh6QQfDIP8ntqangkXJib1wKKTho8utyVKY5btSnoLpA+P2CspqSy/rw6dwph0E6dpFiXQ2fCVYYwZzbSWuf4WojRmGcXTLHqvhh8zd/7bjWC6gbEBvw99wXkv+v2Tv0V9E4Uw0ljmSt/sE1YHoOOuR5V4MDOnqrU36zjDpUlvXRvNx61JxwrbK4EYrGDbIMPmHebwcBBjEoZaTmziwHND5v2+GtLA7iN2CJaapSaEVYXPt1/TwwYQYyQTDeto69BjqEAgRAWmh/hMP2oQ7ZwTEHl+NUJbcSXjw708xaylBPmxur34K312eFtSclMzW6KQL8PydtgkoGBe1Q63iB+9/UFUFCufOVUPAk9ogy57SbpaA7uJs03BwBBSlAGCEbO9e83wUyxxto8PFeSvLkoUSWEBZXjmNntzwjnUUCD8i/rlNF9vLdMNxSz3/j+AKJu9krII9ZmTg+50Ps33M7xGpTd3ED4BNEFXe8r95PjfKUKCf4O2EUKHZckUDl6g7bjxDm5whfHBAhkk7zu7dsMMT5MmJduIz3XIfT4i4X9UNivZSJRG7prB74WFAwBT45mGMDUzM8UuLv757Dm0zYHc7+NfsN9s/h',
+                accessKeyId: 'ASIAVIOZFWO2IMD5JOHX',
+                secretAccessKey: 'p7icc8nJF23UwvvM9YkF9HZLt88a3gz41Eq6oZfZ',
+                sessionToken: 'IQoJb3JpZ2luX2VjEDUaCXVzLWVhc3QtMiJIMEYCIQDSk/KpVjgYrKG60gTBiHALDCGRH5+Juq4w5u/JWtObGQIhAPpzQpc4n3Y1YT137cUl7IAZRQOKlVN8dm858iciJ88OKsQECE8QABoMMzYxNzY5NTc5NDQ0Igwl4P31c2QnIicm1jQqoQREd+RKiHhS3lUU7+vKXycNyD63Jjlm+bgza56ZmiNkZ2ZiIVfTq81uofpgvHtp2KkrjX4YRY0W7mXeD20NiezLwZALTQ4iE2aHpGn96ZIuar7UtahgYkwne7sAiIJPA4hiA/NODZdvrhO1qEz8Z7XLlTjG2R8hLcCKk7NjeskWh6iBH1ojayKGeC0VfXm2C/y9Vl0NUwSq/2k549FIW1b2LPEyke62XFKTY7Ylwh94OEXC3atuPGpsvnODRC8FKqdeoNOZSplp06rp7EYyT/FhpvrX4jn8LiryNtDQvPmyCdPcmJiVMb7l/4qnSGDVqpewghXlRdVctNIXtxVs1dUwtlA7LrYZF3WOTSzs8C685cjiVOf5Y0J2iee9/e3Ec4FM37j3gELYZC0HYws4N+ZQyJDaPufXzrk2EwZcRzHMM7bfroACzBhfoZEktcFo2vsX0f1H0dtZaCoNTUQWKmd87IR1T/NG8YK1aJsuyTzJDEDt6bp3hn8BXbjOpOSlmFmIIES4IXK0h2ZOBGOPpuY4FWQKpZo3g9b2VOXG4K7sYjp0KYh7d8pyFcYnV09p22LOCTB7o+yoilqitapVYDKgp1FSWuIokSRZL54VVLF1D3nGBelVyhFQpF4pj3MswV6Swz92P+xKT4uPwzMu99TEIIyWUjTx59f7X4+DCERfZV+2VW3xUIMk0zveDhyWZyc6fSfixm8qIKgT8nCXDuy9GDDArY+9BjqEApd8gd6j2T/eoi1OreQdVYD+E5rPCLdSaLr4HaiLqgUxVMfE5HHg0LOTHZKnaSq7K/u3syTi47pFmqYgEQM0PgYLcbcsPuUHYjVkjxB7NcAao2k8Z9DlSLeucGnPqhHAvqZ7V21mLuy5c7tXFmMccZOFOGjzI0f07Lt+1mB8GUrDH23Kuq5V75DrtJsNNGq3yvEqKzEd3iqjsCL0GewFCCdV24DDc8tj4Hm4dLjaxNGPWLdV+aaDaT2K38x6ugSDjGbECrGW6bQPx4FcNixs7WiQWIl4gISHvlZH5jve60E8753FzD822aLUBgWzrQ2iV6NaVpiXTtgrfJp30j0gi6yKeuw5',
+
                 bucketName: "puppy-pics-s3",
             });
 
-            setResources(response.data || {});
+            setResources(response.data.resources || []);
         } catch (err) {
             setError(err);
             console.error("Error fetching resources:", err);
@@ -57,10 +56,16 @@ function ResourcePage() {
     };
 
     useEffect(() => {
-        //fetchResources();
-        console.log('test')
-        console.log('test2')
-    },[]); // The empty dependency array ensures the effect runs only once
+        fetchResources();
+
+        return () => {
+            resources.forEach(resource => {
+                if (resource.type === "image" && resource.src) {
+                    URL.revokeObjectURL(resource.src);
+                }
+            });
+        };
+    }, []);
 
     if (loading) {
         return <div>Loading resources...</div>;
@@ -84,21 +89,23 @@ function ResourcePage() {
             </Stack>
 
             <Grid container spacing={2}>
-                {Object.values(resources).map((resource, index) => (
+                {resources.map((resource, index) => (
+
                     <Grid item xs={12} sm={6} md={3} lg={3} key={index}>
-                        <Card
-                            sx={{ height: 350, display: "flex", flexDirection: "column" }}
-                        >
+                        <Card sx={{ height: 350, display: "flex", flexDirection: "column" }}>
                             <CardActionArea sx={{ flex: 1, display: "flex" }}>
-                                {resource.type === "image"? (
-                                    <CardMedia
-                                        component="img"
-                                        height="200"
-                                        image={resource.src}
-                                        alt={resource.name}
-                                        sx={{ objectFit: "contain" }}
-                                    />
-                                ): (
+                                {resource.type === "image" && resource.src ? (
+                                    <>
+                                        {console.log("resource.src:", resource.src)}
+                                        <CardMedia
+                                            component="img"
+                                            height="200"
+                                            image={resource.src}
+                                            alt={resource.name}
+                                            sx={{ objectFit: "contain" }}
+                                        />
+                                    </>
+                                ) : (
                                     <CardContent
                                         sx={{
                                             textAlign: "center",

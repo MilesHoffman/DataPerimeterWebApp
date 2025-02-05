@@ -6,8 +6,8 @@ const { S3Client, ListObjectsV2Command, GetObjectCommand, ListBucketsCommand } =
 
 
 async function getS3Resources(profile) {
-    if (!profile ||!profile.credentials) {
-        return { success: false, message: "No profile or credentials available." };
+    if (!profile || !profile.credentials) {
+        return {success: false, message: "No profile or credentials available."};
     }
 
     try {
@@ -23,7 +23,7 @@ async function getS3Resources(profile) {
         const listCommand = new ListObjectsV2Command(listParams);
         const listResponse = await s3Client.send(listCommand);
 
-        let resources =[];
+        let resources = [];
 
         if (listResponse.Contents) {
             for (const obj of listResponse.Contents) {
@@ -31,37 +31,52 @@ async function getS3Resources(profile) {
                     Bucket: profile.bucketName,
                     Key: obj.Key,
                 };
-                const getObjectCommand = new GetObjectCommand(getObjectParams);
-                const getObjectResponse = await s3Client.send(getObjectCommand);
 
-                const contentType = getObjectResponse.ContentType;
-                const isImage = contentType && contentType.startsWith('image/');
+                try {
+                    const getObjectCommand = new GetObjectCommand(getObjectParams);
+                    const getObjectResponse = await s3Client.send(getObjectCommand);
 
-                let src;
-                if (isImage) {
-                    const blob = await getObjectResponse.Body.transformToByteArray();
-                    src = URL.createObjectURL(new Blob([blob], { type: contentType }));
-                } else {
-                    const blob = await getObjectResponse.Body.transformToByteArray();
-                    src = URL.createObjectURL(new Blob([blob], { type: contentType }));
+                    const contentType = getObjectResponse.ContentType;
+                    const isImage = contentType && contentType.startsWith('image/');
+
+                    let src;
+                    if (isImage) {
+                        try {
+                            const blob = await getObjectResponse.Body.transformToByteArray();
+                            src = URL.createObjectURL(new Blob([blob], {type: contentType}));
+                        } catch (blobError) {
+                            console.error("Error creating Blob:", blobError);
+                            src = null;
+                        }
+                    } else {
+                        src = null;
+                    }
+
+                    resources.push({
+                        name: obj.Key,
+                        type: isImage ? 'image' : 'file',
+                        src: src,
+                    });
+
+                } catch (getObjectError) {
+                    console.error(`Error getting object ${obj.Key}:`, getObjectError);
+
+                    resources.push({
+                        name: obj.Key,
+                        type: 'error',
+                        src: null,
+                        error: getObjectError.message
+                    });
                 }
-
-                resources.push({
-                    name: obj.Key,
-                    type: isImage? 'image': 'file',
-                    src: src,
-                });
             }
         }
 
-        return { success: true, resources };
-
+        return {success: true, resources};
     } catch (error) {
         console.error("Error in getS3Resources:", error);
-        return { success: false, message: error.message };
+        return {success: false, message: error.message};
     }
 }
-
 async function listAllBucketsAndContents(profile) {
     if (!profile ||!profile.credentials) {
         return { success: false, message: "No profile or credentials available." };
