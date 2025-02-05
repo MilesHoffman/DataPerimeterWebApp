@@ -41,6 +41,7 @@ async function getS3Resources(profile) {
 
                     let src;
                     if (isImage) {
+                        //test
                         try {
                             const blob = await getObjectResponse.Body.transformToByteArray();
                             src = URL.createObjectURL(new Blob([blob], {type: contentType}));
