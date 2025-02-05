@@ -169,7 +169,7 @@ function ResourcePage() {
             </Grid>
         </div>
     );
-    //test comment
+
 }
 
 export default ResourcePage;
