@@ -39,9 +39,9 @@ function ResourcePage() {
 
         try {
             const response = await axios.post("http://localhost:5000/api/resource", {
-                accessKeyId: 'ASIAVIOZFWO2IMD5JOHX',
-                secretAccessKey: 'p7icc8nJF23UwvvM9YkF9HZLt88a3gz41Eq6oZfZ',
-                sessionToken: 'IQoJb3JpZ2luX2VjEDUaCXVzLWVhc3QtMiJIMEYCIQDSk/KpVjgYrKG60gTBiHALDCGRH5+Juq4w5u/JWtObGQIhAPpzQpc4n3Y1YT137cUl7IAZRQOKlVN8dm858iciJ88OKsQECE8QABoMMzYxNzY5NTc5NDQ0Igwl4P31c2QnIicm1jQqoQREd+RKiHhS3lUU7+vKXycNyD63Jjlm+bgza56ZmiNkZ2ZiIVfTq81uofpgvHtp2KkrjX4YRY0W7mXeD20NiezLwZALTQ4iE2aHpGn96ZIuar7UtahgYkwne7sAiIJPA4hiA/NODZdvrhO1qEz8Z7XLlTjG2R8hLcCKk7NjeskWh6iBH1ojayKGeC0VfXm2C/y9Vl0NUwSq/2k549FIW1b2LPEyke62XFKTY7Ylwh94OEXC3atuPGpsvnODRC8FKqdeoNOZSplp06rp7EYyT/FhpvrX4jn8LiryNtDQvPmyCdPcmJiVMb7l/4qnSGDVqpewghXlRdVctNIXtxVs1dUwtlA7LrYZF3WOTSzs8C685cjiVOf5Y0J2iee9/e3Ec4FM37j3gELYZC0HYws4N+ZQyJDaPufXzrk2EwZcRzHMM7bfroACzBhfoZEktcFo2vsX0f1H0dtZaCoNTUQWKmd87IR1T/NG8YK1aJsuyTzJDEDt6bp3hn8BXbjOpOSlmFmIIES4IXK0h2ZOBGOPpuY4FWQKpZo3g9b2VOXG4K7sYjp0KYh7d8pyFcYnV09p22LOCTB7o+yoilqitapVYDKgp1FSWuIokSRZL54VVLF1D3nGBelVyhFQpF4pj3MswV6Swz92P+xKT4uPwzMu99TEIIyWUjTx59f7X4+DCERfZV+2VW3xUIMk0zveDhyWZyc6fSfixm8qIKgT8nCXDuy9GDDArY+9BjqEApd8gd6j2T/eoi1OreQdVYD+E5rPCLdSaLr4HaiLqgUxVMfE5HHg0LOTHZKnaSq7K/u3syTi47pFmqYgEQM0PgYLcbcsPuUHYjVkjxB7NcAao2k8Z9DlSLeucGnPqhHAvqZ7V21mLuy5c7tXFmMccZOFOGjzI0f07Lt+1mB8GUrDH23Kuq5V75DrtJsNNGq3yvEqKzEd3iqjsCL0GewFCCdV24DDc8tj4Hm4dLjaxNGPWLdV+aaDaT2K38x6ugSDjGbECrGW6bQPx4FcNixs7WiQWIl4gISHvlZH5jve60E8753FzD822aLUBgWzrQ2iV6NaVpiXTtgrfJp30j0gi6yKeuw5',
+                accessKeyId: 'ASIAVIOZFWO2PWLF3MQJ',
+                secretAccessKey: 'BxaHE2OKUUV1LzLigq4nYCdOTa7gAb6ccwcnRR8/',
+                sessionToken: 'IQoJb3JpZ2luX2VjEDYaCXVzLWVhc3QtMiJGMEQCIFRZgw6aBxjlT85Sa9ZQ62xCZr/SAiSOmoUcCDxlpNcQAiB7eZ5FTV+8nBR/BEIAlWlmsWUBFGErv9xLQd+AeL7MPSrEBAhQEAAaDDM2MTc2OTU3OTQ0NCIMMUlOz1F966jRmvZaKqEE6Xo5OSSx2UP4shu1rVbpnzbSMIHbb6Ds1p4lnQ4J6Uw0OegGXF0uWC6eLPTefhJCTWHWmQdY0ByjAyEccUqfQ7P4YsxcxY3zkXyCbE4VLVPOCVorpth2whEWKJd1xTo4vwJXFDDiP9XQJiLJjXXHpT+gLjbPcmFw3pbykJtG/EY3psKfo87Ole6+O1eKGpUJbKJUEIlHQnWdiMk5Et0KnDU8Oo9vr7RxcbVB7JcdsENMPzkO/lG9nxB7SrnknMvCQcTo0MAJnaVCAEVw5sz0YT55SOaekfruHJTTRXVqBMldatm3JFRCgVxq1QxBcWdGcKyBTJBKHeyts/DpfRP1vOROPeLhQjkYbleqddLKPKO8FhwL5MavXq0f/dLCD5oYwYEBzj/wyJttYT6jm18G94II9VaUIx/Lg1Ik2lXnhvEcQKNVAS7XtwB+j0cysgMf0EGz5E5sd3eD4dsCQOsLTOS3dZzrF7fYyNAmlhMYKgaiT4d18lNUwt+80g4ih+ePMXrccYHPjCGhEDIL/6Bn9PF58r0b/d8TNCd7B9hmUM7CNm30lOC8eumG/a0kaG1i53gKe+DIcnKbQJJe3gVm/lFAvCF5uV8MF6WLDFdmXZ0ahadpb6n/TeTEJN2+6xGSMGP/+PFriXw1UwOb628dSGVE7Zul9nTkaa2YqmSejPY2N0SQAqbef6S0FLtoySXDcwjs+DN67GwtYqOxh9VBWoowj8qPvQY6hgJaeeDQeKAuCFaUUwVptl8hEgofeuJ6iS7jZFwkyR4TE2o+qfyqhP3U3HrAF0U6I1nR0wIT6AYqXV55BjhAeXs0j/85L0scIEDwlE5M+Xrr+1t1idpBNgCFDOvwdcYITCZ5V82S4Um4q97EXkzMpCGKLFfrCwB/eA3wu5AYunRIwXSA/Ocb7p/h8MGeY16qpDOUkVriXz5cRy/Hkf3Wv1lpRRC0RsPGBrfDI2tQqhyjxTBK+BJ43iBBW5iirQ/qAJxSCeWWEGbroMA5QNcLpk6Lnb9ua/FIJOXYKvGjWByI9ptr9y3NBMbbreCN0AqoEiY1r8z2aUh4QkAqdhW4lXlzsU6DXhUt',
 
                 bucketName: "puppy-pics-s3",
             });
@@ -60,8 +60,9 @@ function ResourcePage() {
 
         return () => {
             resources.forEach(resource => {
-                if (resource.type === "image" && resource.src) {
-                    URL.revokeObjectURL(resource.src);
+                if (resource.type === "image" && resource.data) {
+                    const blob = new Blob([resource.data], { type: resource.contentType })
+                    URL.revokeObjectURL(URL.createObjectURL(blob));
                 }
             });
         };

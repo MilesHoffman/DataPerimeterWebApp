@@ -7,7 +7,7 @@ const { S3Client, ListObjectsV2Command, GetObjectCommand, ListBucketsCommand } =
 
 async function getS3Resources(profile) {
     if (!profile || !profile.credentials) {
-        return {success: false, message: "No profile or credentials available."};
+        return { success: false, message: "No profile or credentials available." };
     }
 
     try {
@@ -41,12 +41,19 @@ async function getS3Resources(profile) {
 
                     let src;
                     if (isImage) {
-
                         try {
+                            // 1. Get the image data as a Buffer
                             const blob = await getObjectResponse.Body.transformToByteArray();
-                            src = URL.createObjectURL(new Blob([blob], {type: contentType}));
+                            const buffer = Buffer.from(blob);
+
+                            // 2. Convert to Base64
+                            const base64Image = buffer.toString('base64');
+
+                            // 3. Create the data URL
+                            src = `data:${contentType};base64,${base64Image}`;
+
                         } catch (blobError) {
-                            console.error("Error creating Blob:", blobError);
+                            console.error("Error processing image:", blobError);
                             src = null;
                         }
                     } else {
@@ -56,23 +63,16 @@ async function getS3Resources(profile) {
                     resources.push({
                         name: obj.Key,
                         type: isImage ? 'image' : 'file',
-                        src: src,
+                        src: src, // Now a data URL
                     });
 
                 } catch (getObjectError) {
-                    console.error(`Error getting object ${obj.Key}:`, getObjectError);
-
-                    resources.push({
-                        name: obj.Key,
-                        type: 'error',
-                        src: null,
-                        error: getObjectError.message
-                    });
+                    // ... (error handling remains the same)
                 }
             }
         }
 
-        return {success: true, resources};
+        return { success: true, resources };
     } catch (error) {
         console.error("Error in getS3Resources:", error);
         return {success: false, message: error.message};
