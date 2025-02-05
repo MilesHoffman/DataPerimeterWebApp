@@ -29,6 +29,50 @@ const IDENTITY_POOL_ID = "us-east-2:b3a5d7ea-d40d-4e87-a126-a3a8f953c92c";
 const cognitoIdentityClient = new CognitoIdentityClient(config);
 const cognitoIdentityProviderClient = new CognitoIdentityProviderClient(config);
 
+
+/**
+ * Retrieves AWS credentials from Cognito Identity Pool.
+ * @param {string} idToken - Cognito ID token.
+ * @param {object} poolData - Cognito User Pool details.
+ * @param {string} IDENTITY_POOL_ID - Cognito Identity Pool ID.
+ * @param {string} REGION - AWS region.
+ * @returns {object} - AWS credentials (accessKeyId, secretAccessKey, sessionToken).
+ */
+async function getAWSCredentials(idToken, poolData, IDENTITY_POOL_ID, REGION) {
+  try {
+    const getIdParams = {
+      IdentityPoolId: IDENTITY_POOL_ID,
+      Logins: {
+        [`cognito-idp.${REGION}.amazonaws.com/${poolData.UserPoolId}`]: idToken,
+      },
+    };
+    const getIdCommand = new GetIdCommand(getIdParams);
+    const getIdResponse = await cognitoIdentityClient.send(getIdCommand);
+    console.log("Cognito Identity ID:", getIdResponse.IdentityId);
+
+    const getCredentialsParams = {
+      IdentityId: getIdResponse.IdentityId,
+      Logins: {
+        [`cognito-idp.${REGION}.amazonaws.com/${poolData.UserPoolId}`]: idToken,
+      },
+    };
+    const getCredentialsCommand = new GetCredentialsForIdentityCommand(getCredentialsParams);
+    const credentialsResponse = await cognitoIdentityClient.send(getCredentialsCommand);
+
+    const credentials = {
+      accessKeyId: credentialsResponse.Credentials.AccessKeyId,
+      secretAccessKey: credentialsResponse.Credentials.SecretKey,
+      sessionToken: credentialsResponse.Credentials.SessionToken,
+    };
+    return credentials;
+  } catch (error) {
+    console.error("Error getting AWS credentials:", error);
+    throw error;
+  }
+}
+
+
+
 /**
  * Authenticates a user with Cognito User Pools and handles challenges.
  * @param {string} username - User's username.
@@ -113,6 +157,8 @@ async function authenticateUser(username, password) {
     throw error;
   }
 }
+
+
 
 /**
  * Refreshes the user's session using a refresh token.
@@ -212,6 +258,7 @@ if (require.main === module) {
 module.exports = {
   authenticateUser,
   refreshSession,
+  getAWSCredentials,
   poolData,
   IDENTITY_POOL_ID,
 };

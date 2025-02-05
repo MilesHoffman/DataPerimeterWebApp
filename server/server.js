@@ -13,9 +13,10 @@ const {
   authenticateUser,
   refreshSession,
   poolData,
-  IDENTITY_POOL_ID,
+  IDENTITY_POOL_ID, getAWSCredentials,
 } = require("./apis/cognito_api");
 const {getS3Resources} = require("./apis/resource_api");
+const {CognitoIdentityClient} = require("@aws-sdk/client-cognito-identity");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -55,6 +56,17 @@ app.post("/api/login", async (req, res) => {
       clientId: poolData.ClientId,
       identityPoolId: IDENTITY_POOL_ID,
     });
+
+    // Getting the other keys for API calls
+    try {
+      const credentials = await getAWSCredentials(tokens.idToken, poolData, IDENTITY_POOL_ID, 'us-east-2');
+      tokens.accessKeyId = credentials.accessKeyId;
+      tokens.secretAccessKey = credentials.secretAccessKey;
+      tokens.sessionToken = credentials.sessionToken;
+      console.log("AWS Credentials retrieved:", tokens);
+    } catch (error) {
+      console.error("Error retrieving AWS credentials:", error);
+    }
 
     // Send the tokens back to the client
     console.log("Sending tokens back to client:", tokens);

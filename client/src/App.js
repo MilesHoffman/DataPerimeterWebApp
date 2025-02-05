@@ -23,6 +23,7 @@ import ProfileContext, {profiles} from "./logic/profileLogic";
 import Policies from './Pages/Policies';
 import SecurityIcon from '@mui/icons-material/Security';
 import ProfileList from "./Pages/ProfileList";
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
 
 function App() {
   const location = useLocation();
@@ -116,7 +117,7 @@ function App() {
                         aria-label="profile"
                         onClick={handleOpenProfileMenu}
                     >
-                    <AccountCircleIcon />
+                    <AccountBoxIcon color={'primary'}  />
                     </IconButton>
 
                     <Menu
@@ -211,7 +212,7 @@ function App() {
                 >
                     <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
                         <SecurityIcon sx={{fontSize: 55}}  color={'secondary'}/>
-                        <Typography variant={'h3'} color={'textSecondary'}>
+                        <Typography marginLeft={1} variant={'h3'} color={'textSecondary'}>
                             AWS
                         </Typography>
                     </div>

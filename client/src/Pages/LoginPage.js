@@ -61,6 +61,9 @@ function LoginPage() {
             userPoolId: tokens.userPoolId,
             clientId: tokens.clientId,
             identityPoolId: tokens.identityPoolId,
+            accessKeyId: tokens.accessKeyId,
+            secretAccessKey: tokens.secretAccessKey,
+            sessionToken: tokens.sessionToken
           },
         };
 
@@ -96,7 +99,7 @@ function LoginPage() {
         <Typography variant="h6" gutterBottom>
           Data Perimeter Account Login
         </Typography>
-        <Typography variant="body2" color="textSecondary" gutterBottom>
+        <Typography variant="body2" color="textPrimary" gutterBottom>
           Enter your credentials to sign in
         </Typography>
         {/* Login form */}
