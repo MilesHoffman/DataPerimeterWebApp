@@ -96,7 +96,7 @@ function ResourcePage() {
                             <CardActionArea sx={{ flex: 1, display: "flex" }}>
                                 {resource.type === "image" && resource.src ? (
                                     <>
-                                        //test
+
                                         {console.log("resource.src:", resource.src)}
                                         <CardMedia
                                             component="img"
