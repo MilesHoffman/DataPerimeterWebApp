@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useContext, useEffect, useState} from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
@@ -17,6 +17,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { Stack } from "@mui/material";
+import ProfileContext from "../logic/profileLogic";
 
 function ResourcePage() {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -24,7 +25,7 @@ function ResourcePage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const open = Boolean(anchorEl);
-
+    const { currentProfile } = useContext(ProfileContext);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -37,12 +38,15 @@ function ResourcePage() {
         setLoading(true);
         setError(null);
         //test
+
+        console.log("AK:",currentProfile.accessKeyId);
+        console.log("AAK:",currentProfile.secretAccessKey);
+        console.log("ST:",currentProfile.sessionToken);
         try {
             const response = await axios.post("http://localhost:5000/api/resource", {
-                accessKeyId: 'ASIAVIOZFWO2PWLF3MQJ',
-                secretAccessKey: 'BxaHE2OKUUV1LzLigq4nYCdOTa7gAb6ccwcnRR8/',
-                sessionToken: 'IQoJb3JpZ2luX2VjEDYaCXVzLWVhc3QtMiJGMEQCIFRZgw6aBxjlT85Sa9ZQ62xCZr/SAiSOmoUcCDxlpNcQAiB7eZ5FTV+8nBR/BEIAlWlmsWUBFGErv9xLQd+AeL7MPSrEBAhQEAAaDDM2MTc2OTU3OTQ0NCIMMUlOz1F966jRmvZaKqEE6Xo5OSSx2UP4shu1rVbpnzbSMIHbb6Ds1p4lnQ4J6Uw0OegGXF0uWC6eLPTefhJCTWHWmQdY0ByjAyEccUqfQ7P4YsxcxY3zkXyCbE4VLVPOCVorpth2whEWKJd1xTo4vwJXFDDiP9XQJiLJjXXHpT+gLjbPcmFw3pbykJtG/EY3psKfo87Ole6+O1eKGpUJbKJUEIlHQnWdiMk5Et0KnDU8Oo9vr7RxcbVB7JcdsENMPzkO/lG9nxB7SrnknMvCQcTo0MAJnaVCAEVw5sz0YT55SOaekfruHJTTRXVqBMldatm3JFRCgVxq1QxBcWdGcKyBTJBKHeyts/DpfRP1vOROPeLhQjkYbleqddLKPKO8FhwL5MavXq0f/dLCD5oYwYEBzj/wyJttYT6jm18G94II9VaUIx/Lg1Ik2lXnhvEcQKNVAS7XtwB+j0cysgMf0EGz5E5sd3eD4dsCQOsLTOS3dZzrF7fYyNAmlhMYKgaiT4d18lNUwt+80g4ih+ePMXrccYHPjCGhEDIL/6Bn9PF58r0b/d8TNCd7B9hmUM7CNm30lOC8eumG/a0kaG1i53gKe+DIcnKbQJJe3gVm/lFAvCF5uV8MF6WLDFdmXZ0ahadpb6n/TeTEJN2+6xGSMGP/+PFriXw1UwOb628dSGVE7Zul9nTkaa2YqmSejPY2N0SQAqbef6S0FLtoySXDcwjs+DN67GwtYqOxh9VBWoowj8qPvQY6hgJaeeDQeKAuCFaUUwVptl8hEgofeuJ6iS7jZFwkyR4TE2o+qfyqhP3U3HrAF0U6I1nR0wIT6AYqXV55BjhAeXs0j/85L0scIEDwlE5M+Xrr+1t1idpBNgCFDOvwdcYITCZ5V82S4Um4q97EXkzMpCGKLFfrCwB/eA3wu5AYunRIwXSA/Ocb7p/h8MGeY16qpDOUkVriXz5cRy/Hkf3Wv1lpRRC0RsPGBrfDI2tQqhyjxTBK+BJ43iBBW5iirQ/qAJxSCeWWEGbroMA5QNcLpk6Lnb9ua/FIJOXYKvGjWByI9ptr9y3NBMbbreCN0AqoEiY1r8z2aUh4QkAqdhW4lXlzsU6DXhUt',
-
+                accessKeyId: currentProfile.accessKeyId,
+                secretAccessKey: currentProfile.secretAccessKey,
+                sessionToken: currentProfile.sessionToken,
                 bucketName: "puppy-pics-s3",
             });
 
@@ -79,7 +83,7 @@ function ResourcePage() {
     return (
         <div>
             <Stack direction="row" alignItems="center" spacing={1}>
-                <h1>Resource Page</h1>
+                <h1>Name of resource</h1>
                 <IconButton
                     onClick={fetchResources}
                     variant="contained"

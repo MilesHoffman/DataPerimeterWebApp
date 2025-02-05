@@ -99,7 +99,7 @@ app.post("/api/resource", async (req, res) => {
     credentials: credentials,
     bucketName: bucketName
   }
-  //console.log("Entering function")
+  console.log("Entering function")
   const resourceData = await getS3Resources(profile);
   console.log("Exit function")
 
@@ -117,6 +117,7 @@ app.post("/api/resource", async (req, res) => {
     console.error("Main function error:", error);
   }
 
+  console.log("res");
 
   res.json(resourceData);
 })

@@ -19,7 +19,7 @@ async function getS3Resources(profile) {
         const listParams = {
             Bucket: profile.bucketName,
         };
-    //test
+
         const listCommand = new ListObjectsV2Command(listParams);
         const listResponse = await s3Client.send(listCommand);
 
@@ -42,14 +42,14 @@ async function getS3Resources(profile) {
                     let src;
                     if (isImage) {
                         try {
-                            // 1. Get the image data as a Buffer
+
                             const blob = await getObjectResponse.Body.transformToByteArray();
                             const buffer = Buffer.from(blob);
 
-                            // 2. Convert to Base64
+
                             const base64Image = buffer.toString('base64');
 
-                            // 3. Create the data URL
+
                             src = `data:${contentType};base64,${base64Image}`;
 
                         } catch (blobError) {
@@ -63,11 +63,11 @@ async function getS3Resources(profile) {
                     resources.push({
                         name: obj.Key,
                         type: isImage ? 'image' : 'file',
-                        src: src, // Now a data URL
+                        src: src,
                     });
 
                 } catch (getObjectError) {
-                    // ... (error handling remains the same)
+
                 }
             }
         }
