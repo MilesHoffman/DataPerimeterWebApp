@@ -24,6 +24,7 @@ import Policies from './Pages/Policies';
 import SecurityIcon from '@mui/icons-material/Security';
 import ProfileList from "./Pages/ProfileList";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import NetworkControlOne from "./Pages/policyEditors/NetworkControl_1";
 
 function App() {
   const location = useLocation();
@@ -232,6 +233,7 @@ function App() {
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/policies" element={<Policies />} />
                     <Route path="/profiles" element={<ProfileList />} />
+                    <Route path="/networkControlOne" element={<NetworkControlOne />} />
                 </Routes>
             </div>
         </div>
