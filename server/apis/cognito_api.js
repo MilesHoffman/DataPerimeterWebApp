@@ -16,15 +16,6 @@ const { S3Client, ListBucketsCommand } = require("@aws-sdk/client-s3");
 const REGION = "us-east-2"; // Ohio
 const config = { region: REGION };
 
-// Cognito User Pool details
-const poolData = {
-  UserPoolId: "us-east-2_Z4LAAO6F8", // User pool ID
-  ClientId: "5ku6g318514rb9u6hmn1dgvuvt", // Application client ID
-};
-
-// Cognito Identity Pool ID
-const IDENTITY_POOL_ID = "us-east-2:b3a5d7ea-d40d-4e87-a126-a3a8f953c92c";
-
 // Client initialization
 const cognitoIdentityClient = new CognitoIdentityClient(config);
 const cognitoIdentityProviderClient = new CognitoIdentityProviderClient(config);
@@ -77,12 +68,15 @@ async function getAWSCredentials(idToken, poolData, IDENTITY_POOL_ID, REGION) {
  * Authenticates a user with Cognito User Pools and handles challenges.
  * @param {string} username - User's username.
  * @param {string} password - User's password.
+ * @param {string} userPoolId
+ * @param {string} idPoolId
+ * @param {string} clientId
  * @returns {object} - Authentication tokens.
  */
-async function authenticateUser(username, password) {
+async function authenticateUser(username, password, clientId) {
   const params = {
     AuthFlow: "USER_PASSWORD_AUTH",
-    ClientId: poolData.ClientId,
+    ClientId: clientId,
     AuthParameters: { USERNAME: username, PASSWORD: password },
   };
 
@@ -103,7 +97,7 @@ async function authenticateUser(username, password) {
 
       const respondParams = {
         ChallengeName: "NEW_PASSWORD_REQUIRED",
-        ClientId: poolData.ClientId,
+        ClientId: clientId,
         ChallengeResponses: challengeResponses,
         Session: response.Session,
       };
@@ -128,7 +122,7 @@ async function authenticateUser(username, password) {
 
       const respondParams = {
         ChallengeName: "PASSWORD_VERIFIER",
-        ClientId: poolData.ClientId,
+        ClientId: clientId,
         ChallengeResponses: challengeResponses,
         Session: response.Session,
       };
@@ -165,10 +159,10 @@ async function authenticateUser(username, password) {
  * @param {string} refreshToken - The refresh token.
  * @returns {object} - New access and ID tokens.
  */
-async function refreshSession(refreshToken) {
+async function refreshSession(refreshToken, clientId) {
   const params = {
     AuthFlow: "REFRESH_TOKEN_AUTH",
-    ClientId: poolData.ClientId,
+    ClientId: clientId,
     AuthParameters: { REFRESH_TOKEN: refreshToken },
   };
 
@@ -189,19 +183,28 @@ async function refreshSession(refreshToken) {
 
 // Main function for testing the authentication and S3 access
 async function main() {
-  const USERNAME = "miles";
+  const USERNAME = "dog";
   const PASSWORD = "Test_1234";
+
+  // Cognito User Pool details
+  const testPoolData = {
+    UserPoolId: "us-east-2_9cD9h80bH", // User pool ID
+    ClientId: "6jfl27ldku8gi24ch3q67fmkkc", // Application client ID
+  };
+
+  // Cognito Identity Pool ID
+  const TEST_IDENTITY_POOL_ID = "us-east-2:eba3ab2e-8314-47bf-a8b2-9dd2f7a0ecce";
 
   try {
     // Authenticate the user
-    const tokens = await authenticateUser(USERNAME, PASSWORD);
+    const tokens = await authenticateUser(USERNAME, PASSWORD, testPoolData.ClientId);
     console.log("User authenticated.");
 
     // Get the Cognito Identity D
     const getIdParams = {
-      IdentityPoolId: IDENTITY_POOL_ID,
+      IdentityPoolId: TEST_IDENTITY_POOL_ID,
       Logins: {
-        [`cognito-idp.${REGION}.amazonaws.com/${poolData.UserPoolId}`]:
+        [`cognito-idp.${REGION}.amazonaws.com/${testPoolData.UserPoolId}`]:
           tokens.idToken,
       },
     };
@@ -213,7 +216,7 @@ async function main() {
     const getCredentialsParams = {
       IdentityId: getIdResponse.IdentityId,
       Logins: {
-        [`cognito-idp.${REGION}.amazonaws.com/${poolData.UserPoolId}`]:
+        [`cognito-idp.${REGION}.amazonaws.com/${testPoolData.UserPoolId}`]:
           tokens.idToken,
       },
     };
@@ -259,6 +262,4 @@ module.exports = {
   authenticateUser,
   refreshSession,
   getAWSCredentials,
-  poolData,
-  IDENTITY_POOL_ID,
 };
