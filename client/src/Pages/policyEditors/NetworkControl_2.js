@@ -9,7 +9,7 @@ const initializeValues = () => {
 	// this will eventually set all the values ater grabbing them from the API
 }
 
-export default function NetworkControlOne() {
+export default function NetworkControlTwo() {
 
 	const colors = useTheme().palette
 

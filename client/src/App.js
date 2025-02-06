@@ -25,6 +25,7 @@ import SecurityIcon from '@mui/icons-material/Security';
 import ProfileList from "./Pages/ProfileList";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import NetworkControlOne from "./Pages/policyEditors/NetworkControl_1";
+import NetworkControlTwo from "./Pages/policyEditors/NetworkControl_2";
 
 function App() {
   const location = useLocation();
@@ -234,6 +235,7 @@ function App() {
                     <Route path="/policies" element={<Policies />} />
                     <Route path="/profiles" element={<ProfileList />} />
                     <Route path="/networkControlOne" element={<NetworkControlOne />} />
+                    <Route path="/networkControlTwo" element={<NetworkControlTwo />} />
                 </Routes>
             </div>
         </div>

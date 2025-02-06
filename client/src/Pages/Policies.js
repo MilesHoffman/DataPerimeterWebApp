@@ -93,7 +93,10 @@ export default function PolicyPage() {
 				title={'Network Perimeter 1'}
 				editorHandler={() => navigate('/networkControlOne')}
 			/>
-			<ControlWidget title={'Network Perimeter 2'}/>
+			<ControlWidget
+				title={'Network Perimeter 2'}
+				editorHandler={()=>navigate('/networkControlTwo')}
+			/>
 			<ControlWidget title={'Identity Perimeter 1'}/>
 			<ControlWidget title={'Identity Perimeter 2'}/>
 			<ControlWidget title={'Resource Perimeter 1'}/>
