@@ -40,13 +40,19 @@ const Homepage = () => {
   const [accounts, setAccounts] = useState([]);
 
   useEffect(() => {
-    // Ensure selected profile is at the top and update resource lists dynamically
-    const updatedAccounts = profiles
-      .map(profile => ({
-        name: profile.name,
-        resources: profile.resources || [],
-      }))
-      .sort((a, b) => (b.name === currentProfile.name ? 1 : -1));
+    if (!currentProfile) {
+      setAccounts([]);
+      return;
+    }
+
+    // Ensure selected profile is at the top and add default resources if missing
+    const updatedAccounts = profiles.map(profile => ({
+      name: profile.name,
+      resources: profile.resources.length > 0 ? profile.resources : [
+        { name: "Default S3", type: "S3 Bucket", files: 10, status: "compliant" },
+        { name: "Default EC2", type: "EC2 Instance", files: 5, status: "non-compliant" }
+      ],
+    })).sort((a, b) => (b.name === currentProfile?.name ? 1 : -1));
     
     setAccounts(updatedAccounts);
   }, [profiles, currentProfile]);
@@ -71,6 +77,17 @@ const Homepage = () => {
   const handleResourceClick = (resource) => {
     navigate('/resourcePage', { state: { resource } });
   };
+
+  if (!currentProfile) {
+    return (
+      <DashboardContainer>
+        <Typography variant="h4">Dashboard</Typography>
+        <Typography variant="body1" color="textSecondary">
+          No accounts are logged in.
+        </Typography>
+      </DashboardContainer>
+    );
+  }
 
   return (
     <DashboardContainer>
