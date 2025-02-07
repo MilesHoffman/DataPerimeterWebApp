@@ -1,26 +1,6 @@
 import React, { createContext, useState } from "react";
 import { Profile } from "../classes/profileClass";
 
-// Temporary simulated profiles (if you wish to keep these for testing)
-let dog_llc = new Profile("Dog LLC", [
-  { name: "Happy Dogs", type: "S3 Bucket", files: 3, status: "compliant" },
-  { name: "Dog EC2", type: "EC2 Instance", files: 0, status: "compliant" },
-]);
-
-let puppy_llc = new Profile("Puppy LLC", [
-  { name: "Little Puppies", type: "S3 Bucket", files: 5, status: "compliant" },
-  { name: "Puppy EC2", type: "EC2 Instance", files: 0, status: "compliant" },
-]);
-
-let competitor = new Profile("Competitor LLC", [
-  { name: "Stolen Pics", type: "S3 Bucket", files: 3, status: "non-compliant" },
-  {
-    name: "Competitor EC2",
-    type: "EC2 Instance",
-    files: 0,
-    status: "non-compliant",
-  },
-]);
 
 // Lets us access profiles across the app.
 const ProfileContext = createContext();
@@ -29,7 +9,7 @@ const ProfileContext = createContext();
 export const ProfileProvider = ({ children }) => {
   // For testing you might start with some simulated profiles,
   // or start with an empty array if you wish to only add profiles on login.
-  const [profiles, setProfiles] = useState([dog_llc, puppy_llc, competitor]);
+  const [profiles, setProfiles] = useState([]);
   const initialProfile = profiles.length > 0 ? profiles[0] : null;
   const [currentProfile, setCurrentProfileVar] = useState(initialProfile);
 
