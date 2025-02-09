@@ -86,9 +86,9 @@ app.post("/api/buckets_list", async (req, res) => {
     const s3 = new AWS.S3({ accessKeyId, secretAccessKey, sessionToken, region });
 
     try {
-        console.log("Fetching S3 bucket list...");
+        console.log(`Fetching S3 bucket list for ${accessKeyId}...`);
         const bucketsResponse = await s3.listBuckets().promise();
-
+        console.log('Response for listing s3 buckets: ', bucketsResponse)
         const bucketDetails = await Promise.all(
             bucketsResponse.Buckets.map(async (bucket) => {
                 try {
