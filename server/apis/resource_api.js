@@ -235,10 +235,10 @@ async function getBucketCompliance(accessKeyId, secretAccessKey, sessionToken, b
     }
 }
 
-
+/*
 async function main() {
 
-    /*
+
         puppy
             accessKeyId: "ASIAVIOZFWO2EJGNQFG3",
             secretAccessKey: "Mq8ptNQ3qXkVT5rocpEU/GJao/QwXYw9I+aR40HC",
@@ -249,11 +249,12 @@ async function main() {
             secretAccessKey: "qH9mzacHsLK8c/wyV3Fide8Lg7O+j8euGszYs4CN",
             sessionToken: "IQoJb3JpZ2luX2VjEIH//////////wEaCXVzLWVhc3QtMiJIMEYCIQD8A1at64TQ9Z+zzfGVW0VldTLCY6JZFSHotlBIKORbCwIhALRUBFcsOlZWkzT7+bR3zbU77EJ6JQbe/NGl7FP6ybgPKs0ECJr//////////wEQABoMNjAwNjI3MzU4OTExIgwBYOWIIBazYXfsitkqoQTDcW7siPiS/JQyN4/tkvgZcUKbSfiN22+opKv1A6rVab0IVdX0zwb+TTPldFJqDDjNo3ZqKuxuw/nh/kIreJPCPwpt35HoAbetSGrUrWyuqQ35aVItdBFKd+++WoFas+NhLLg8OLU7NQThkgH+Wz6g5GxtyiuNMbt+BpsYqgvMz3xsQEOoQgc6mL5q+0/i7VtyD8cRvk4Z3nXBb4Wu9vdB3cuZK9XEMtfesiOSDmgXFVbSiRyjdw4GEIW5VLuNW1uaBIj16xFingDG90iCQ3j8CAIgs7Z/LCHmt4ciSu0bzXlPQXYEo7DHXOGCGfAgkZZ7EkZuYMoxYPg8GEFW4ErWta7f0Eppri09UlFtVdg2SVt8HEntVF1iluwGLm7CHPr+wFEcAT1MheqNvM25zruCO+4aJrmYrrmhp2iPHi2MBhfrGyRTvDB/g4t8RABQ4PlZDAOjMFztW4Z+kp+LmWhBOIaBJ0KBqkDDaHdLXCd4qFJW9nJPipRvBND0CNaN8ecUObQ4NhoswtAyGR6cKTETru1rMY4d9QZyeWCRL3Z0MkHPI2su1ZHfYiume9QD54E8287yODi/fzA1+c6xH8YBCwg1uZUoLpdq6pYYYrYCvrF+oNe6oTwZi+bXBFlxMEBYWwfRUzCFgyOhYD+C3uigqsiXBMNv3FlK4bYGw18T1Gsb1N0F+iQcm7KjCgGR9azqlnXjR8rXN7qhVurn3NyibzDn8J+9BjqEAo4z+ye7XG5Vz4YV+EvHZt0YD8RLwJm2lwiG1nUhaPjpl9FnBBUbP4FVin5dm90/YtqU8raAv685bsoxsX1UgWqK/LZhr0QZb9yjWm+AXMkj+g+4Hg/Es0nIYtuPHaArozQW71AQLFkTqTrs0Qi4MBYIc24b4cvUiIP9H+GTHB/Kl15QK6ZO16x4paZI2UgKNyEPnCXwj4kDX14QQEbtivCYCLCMBllQy83VpqE0kTuPn7sWxmZdzACj+AVQQwjP+Z05it1e8DsROL+lZQzEVbZ0deNJ7ULU+7LdjvR1+R+tp7n61mf6opdYIZSZlY78ja92A/uRwmdvadBXjg1BaAFvrg+9"
 
-     */
+
 
    //test profile
     const testProfile = {
         region: "us-east-2",
+
         credentials: {
 
             accessKeyId: 'ASIAVIOZFWO2GSAC5T6C',
@@ -274,9 +275,9 @@ async function main() {
         // List buckets and contents
         const result = await listAllBucketsAndContents(testProfile)
 
-        /*
+
         const result = await listAllBucketsAndContents(testProfile);
->>>>>>> origin/main
+
         if (result.success) {
             console.log("Bucket Data:", JSON.stringify(result.bucketData, null, 2))
         } else {
@@ -292,9 +293,9 @@ async function main() {
         }
 
 
-<<<<<<< HEAD
-        /*
-        // Test adding a text file
+
+
+        // Tes adding a text file
         const addTextResult = await addS3Resource(
             testProfile,
             "puppy-pics-s3",
@@ -327,7 +328,7 @@ async function main() {
             console.error("Error adding image file:", addImageResult.message)
         }
 
-        /*
+
         // Test removing a resource
         const removeResult = await removeS3Resource(testProfile, "puppy-pics-s3", "test.txt"); // Replace with your object key
         if (removeResult.success) {
@@ -338,8 +339,9 @@ async function main() {
 
 
 
-=======
-         */
+
+
+
         console.log('\nAttempting compliance check...')
 
         const compliance = await getBucketCompliance(
@@ -358,5 +360,5 @@ async function main() {
 if (require.main === module) {
     main()
 }
-
+*/
 module.exports = { getS3Resources,removeS3Resource,addS3Resource }
