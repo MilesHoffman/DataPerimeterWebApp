@@ -234,7 +234,7 @@ async function getBucketCompliance(accessKeyId, secretAccessKey, sessionToken, b
         else return {msg: 'Error: ' + e.Code, compliant: null}
     }
 }
-
+//test
 /*
 async function main() {
 
