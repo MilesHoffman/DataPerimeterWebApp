@@ -13,7 +13,8 @@ const {
 	authenticateUser,
 	getAWSCredentials,
 } = require("./apis/cognito_api");
-const {getS3Resources} = require("./apis/resource_api");
+const {getS3Resources,addS3Resource} = require("./apis/resource_api");
+const {readFileSync} = require("node:fs");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -44,25 +45,25 @@ app.post("/api/login", async (req, res) => {
 
 		// Getting the other keys for API calls
 		try {
-			const credentials = await getAWSCredentials(tokens.idToken, poolData, identityPoolId, 'us-east-2');
-			tokens.accessKeyId = credentials.accessKeyId;
-			tokens.secretAccessKey = credentials.secretAccessKey;
-			tokens.sessionToken = credentials.sessionToken;
-			console.log("AWS Credentials retrieved:", tokens);
+			const credentials = await getAWSCredentials(tokens.idToken, poolData, identityPoolId, 'us-east-2')
+			tokens.accessKeyId = credentials.accessKeyId
+			tokens.secretAccessKey = credentials.secretAccessKey
+			tokens.sessionToken = credentials.sessionToken
+			console.log("AWS Credentials retrieved:", tokens)
 		} catch (error) {
-			console.error("Error retrieving AWS credentials:", error);
+			console.error("Error retrieving AWS credentials:", error)
 		}
 
 		// Send the tokens back to the client
-		console.log("Sending tokens back to client:", tokens);
-		res.json(tokens);
+		console.log("Sending tokens back to client:", tokens)
+		res.json(tokens)
 	} catch (error) {
 		// Log and send back an error response if something goes wrong
-		console.error("Error during login:", error);
+		console.error("Error during login:", error)
 		res.status(500).json({
 			message: "Login failed",
 			error: error.message || error.toString(),
-		});
+		})
 	}
 });
 
@@ -71,8 +72,8 @@ app.post("/api/login", async (req, res) => {
 
 app.post("/api/resource", async (req, res) => {
 
-	const region = "us-east-2";
-	const {accessKeyId, secretAccessKey, sessionToken, bucketName} = req.body;
+	const region = "us-east-2"
+	const {accessKeyId, secretAccessKey, sessionToken, bucketName} = req.body
 	const credentials = {
 		accessKeyId: accessKeyId,
 		secretAccessKey: secretAccessKey,
@@ -85,9 +86,10 @@ app.post("/api/resource", async (req, res) => {
 		bucketName: bucketName
 	}
 	console.log("Entering function")
-	const resourceData = await getS3Resources(profile);
+	const resourceData = await getS3Resources(profile)
 	console.log("Exit function")
 
+	/*
 	try {
 
 
@@ -103,10 +105,142 @@ app.post("/api/resource", async (req, res) => {
 	}
 
 	console.log("res");
-
+	*/
 	res.json(resourceData);
 })
 
+app.post("/api/resource/delete", async (req, res) => {
+
+	const region = "us-east-2"
+	const {accessKeyId, secretAccessKey, sessionToken, bucketName} = req.body
+	const credentials = {
+		accessKeyId: accessKeyId,
+		secretAccessKey: secretAccessKey,
+		sessionToken: sessionToken,
+	}
+
+	const profile = {
+		region: region,
+		credentials: credentials,
+		bucketName: bucketName
+	}
+	console.log("Entering function")
+	const resourceData = await getS3Resources(profile)
+	console.log("Exit function")
+
+
+	res.json(resourceData)
+})
+
+
+
+app.post("/api/resource/add", async (req, res) => {
+	try {
+		console.log('Entering API Call')
+
+		const region = "us-east-2"
+		const {accessKeyId, secretAccessKey, sessionToken, bucketName,filePath} = req.body;
+		const credentials = {
+			accessKeyId: accessKeyId,
+			secretAccessKey: secretAccessKey,
+			sessionToken: sessionToken,
+		}
+		const profile = {
+			region: region,
+			credentials: credentials,
+			bucketName: bucketName
+		}
+
+
+		if (!filePath) {
+			return res.status(400).json({ success: false, message: "File path is required." })
+		}
+
+		let fileInfo;
+		try {
+			const path = require('path');
+
+			const fileNameWithExt = path.basename(filePath)
+			const extName = path.extname(filePath)
+			const fileName = path.basename(filePath, extName)
+			const dirName = path.dirname(filePath)
+
+			let contentType = '';
+			switch (extName.toLowerCase()) {
+				case '.jpg':
+				case '.jpeg':
+					contentType = 'image/jpeg'
+					break;
+				case '.png':
+					contentType = 'image/png'
+					break;
+				case '.txt':
+					contentType = 'text/plain'
+					break;
+
+			}
+			const fileType = contentType.split('/')[0]
+
+			fileInfo = {
+				success: true,
+				name: fileName,
+				extension: extName,
+				fullName: fileNameWithExt,
+				directory: dirName,
+				contentType: contentType,
+				fileType: fileType,
+			}
+
+		} catch (parseError) {
+			console.error("Error parsing file path:", parseError)
+			return res.status(400).json({ success: false, message: "Error parsing file path: " + parseError.message })
+		}
+
+
+		if (!fileInfo.success) {
+			return res.status(400).json({ success: false, message: fileInfo.message })
+		}
+
+		const { fullName, contentType, fileType } = fileInfo // Destructure for easier access
+		console.log(fileType)
+		console.log(contentType)
+		let fileContent
+		if (fileType === 'image') {
+			try {
+				fileContent = readFileSync(filePath);
+			} catch (readError) {
+				console.error("Error reading image file:", readError)
+				return res.status(500).json({ success: false, message: "Error reading image file: " + readError.message })
+			}
+		} else if (fileType === 'text') { // Explicitly check for 'text'
+			try {
+				fileContent = readFileSync(filePath, 'utf-8')
+			} catch (error) {
+				console.error("Error reading text file:", error)
+				return res.status(500).json({ success: false, message: "Error reading the text file: " + error.message })
+			}
+		} else {
+			try {
+				fileContent = readFileSync(filePath); // Read as binary data
+			} catch(error){
+				return res.status(400).json({ success: false, message: `Unsupported file type: ${fileType}` })
+			}
+
+		}
+
+
+		console.log("Entering addS3Resource function")
+		const addData = await addS3Resource(profile, bucketName, fullName, fileContent, contentType)
+		console.log("Exit addS3Resource function")
+
+		res.json(addData);
+
+	} catch (error) {
+		console.error("Error in /api/resource/add:", error);
+		res.status(500).json({ success: false, message: "Server error: " + error.message })
+	}
+
+})
 
 // Start the Express server on the specified port
 app.listen(PORT, () => {

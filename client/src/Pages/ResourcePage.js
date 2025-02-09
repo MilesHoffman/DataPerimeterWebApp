@@ -1,96 +1,119 @@
-import {useContext, useEffect, useState} from "react";
-import axios from "axios";
-import { Link } from "react-router-dom";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import Grid from "@mui/material/Grid";
-import Card from "@mui/material/Card";
-import CardActionArea from "@mui/material/CardActionArea";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Typography from "@mui/material/Typography";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import { Stack } from "@mui/material";
-import ProfileContext from "../logic/profileLogic";
+import {useContext, useEffect, useState} from "react"
+import axios from "axios"
+import { Link } from "react-router-dom"
+import Button from "@mui/material/Button"
+import IconButton from "@mui/material/IconButton"
+import DeleteIcon from "@mui/icons-material/Delete"
+import AddIcon from "@mui/icons-material/Add"
+import EditIcon from "@mui/icons-material/Edit"
+import Grid from "@mui/material/Grid"
+import Card from "@mui/material/Card"
+import CardActionArea from "@mui/material/CardActionArea"
+import CardContent from "@mui/material/CardContent"
+import CardMedia from "@mui/material/CardMedia"
+import Typography from "@mui/material/Typography"
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
+import MoreVertIcon from "@mui/icons-material/MoreVert"
+import Menu from "@mui/material/Menu"
+import MenuItem from "@mui/material/MenuItem"
+import { Stack } from "@mui/material"
+import ProfileContext from "../logic/profileLogic"
 
 function ResourcePage() {
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [resources, setResources] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const open = Boolean(anchorEl);
-    const { currentProfile } = useContext(ProfileContext);
+    const [anchorEl, setAnchorEl] = useState(null)
+    const [resources, setResources] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+    const open = Boolean(anchorEl)
+    const { currentProfile } = useContext(ProfileContext)
     const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
+        setAnchorEl(event.currentTarget)
     };
 
     const handleClose = () => {
-        setAnchorEl(null);
+        setAnchorEl(null)
     };
 
+
+    const handleAdd = async () => {
+        const filePath = prompt("Enter the full file path of the resource you want to add:")
+        if (!filePath) {
+            return
+        }
+
+        setLoading(true)
+        setError(null)
+
+        try {
+            const response = await axios.post("http://localhost:5000/api/resource/add", {
+                accessKeyId: currentProfile.accessKeyId,
+                secretAccessKey: currentProfile.secretAccessKey,
+                sessionToken: currentProfile.sessionToken,
+                bucketName: "puppy-pics-s3",
+                filePath: filePath,
+            })
+
+            setResources(response.data.resources || [])
+        } catch (err) {
+            setError(err)
+            console.error("Error adding resource:", err)
+        } finally {
+            setLoading(false)
+        }
+    }
     const fetchResources = async () => {
-        setLoading(true);
-        setError(null);
+        setLoading(true)
+        setError(null)
         //test
 
-        console.log("AK:",currentProfile.accessKeyId);
-        console.log("AAK:",currentProfile.secretAccessKey);
-        console.log("ST:",currentProfile.sessionToken);
+        console.log("AK:",currentProfile.accessKeyId)
+        console.log("SAK:",currentProfile.secretAccessKey)
+        console.log("ST:",currentProfile.sessionToken)
         try {
             const response = await axios.post("http://localhost:5000/api/resource", {
                 accessKeyId: currentProfile.accessKeyId,
                 secretAccessKey: currentProfile.secretAccessKey,
                 sessionToken: currentProfile.sessionToken,
                 bucketName: "puppy-pics-s3",
-            });
+            })
 
-            setResources(response.data.resources || []);
+            setResources(response.data.resources || [])
         } catch (err) {
-            setError(err);
-            console.error("Error fetching resources:", err);
+            setError(err)
+            console.error("Error fetching resources:", err)
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
     };
 
     useEffect(() => {
-        fetchResources();
+        fetchResources()
 
         return () => {
             resources.forEach(resource => {
                 if (resource.type === "image" && resource.data) {
                     const blob = new Blob([resource.data], { type: resource.contentType })
-                    URL.revokeObjectURL(URL.createObjectURL(blob));
+                    URL.revokeObjectURL(URL.createObjectURL(blob))
                 }
             });
         };
-    }, []);
+    }, [])
 
     if (loading) {
-        return <div>Loading resources...</div>;
+        return <div>Loading resources...</div>
     }
 
     if (error) {
-        return <div>Error: {error.message}</div>;
+        return <div>Error: {error.message}</div>
     }
 
     return (
         <div>
             <Stack direction="row" alignItems="center" spacing={1}>
                 <h1>Name of resource</h1>
-                <IconButton
-                    onClick={fetchResources}
-                    variant="contained"
-                    aria-label="add"
-                >
-                    <AddIcon />
-                </IconButton>
+                <Button variant="contained" startIcon={<AddIcon />} onClick={handleAdd}>
+                    Add
+                </Button>
             </Stack>
 
             <Grid container spacing={2}>
@@ -102,7 +125,7 @@ function ResourcePage() {
                                 {resource.type === "image" && resource.src ? (
                                     <>
 
-                                        {console.log("resource.src:", resource.src)}
+
                                         <CardMedia
                                             component="img"
                                             height="200"
