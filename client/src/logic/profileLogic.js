@@ -1,26 +1,6 @@
 import React, { createContext, useState } from "react";
 import { Profile } from "../classes/profileClass";
 
-// Temporary simulated profiles (if you wish to keep these for testing)
-let dog_llc = new Profile("Dog LLC", [
-  { name: "Happy Dogs", type: "S3 Bucket", files: 3, status: "compliant" },
-  { name: "Dog EC2", type: "EC2 Instance", files: 0, status: "compliant" },
-]);
-
-let puppy_llc = new Profile("Puppy LLC", [
-  { name: "Little Puppies", type: "S3 Bucket", files: 5, status: "compliant" },
-  { name: "Puppy EC2", type: "EC2 Instance", files: 0, status: "compliant" },
-]);
-
-let competitor = new Profile("Competitor LLC", [
-  { name: "Stolen Pics", type: "S3 Bucket", files: 3, status: "non-compliant" },
-  {
-    name: "Competitor EC2",
-    type: "EC2 Instance",
-    files: 0,
-    status: "non-compliant",
-  },
-]);
 
 // Lets us access profiles across the app.
 const ProfileContext = createContext();
@@ -29,7 +9,7 @@ const ProfileContext = createContext();
 export const ProfileProvider = ({ children }) => {
   // For testing you might start with some simulated profiles,
   // or start with an empty array if you wish to only add profiles on login.
-  const [profiles, setProfiles] = useState([dog_llc, puppy_llc, competitor]);
+  const [profiles, setProfiles] = useState([]);
   const initialProfile = profiles.length > 0 ? profiles[0] : null;
   const [currentProfile, setCurrentProfileVar] = useState(initialProfile);
 
@@ -40,9 +20,9 @@ export const ProfileProvider = ({ children }) => {
        - keys: the static credentials returned from Cognito. */
   const addProfile = (profileData) => {
     const newProfile = new Profile(
-      profileData.name,
-      profileData.resources || [],
-      profileData.keys || {}
+        profileData.name,
+        profileData.resources || [],
+        profileData.keys || {}
     );
     setProfiles([...profiles, newProfile]);
     setCurrentProfileVar(newProfile);
@@ -56,7 +36,7 @@ export const ProfileProvider = ({ children }) => {
     // Update currentProfile if the removed profile was the current one
     if (currentProfile && currentProfile.name === name) {
       const nextProfile =
-        updatedProfiles.length > 0 ? updatedProfiles[0] : null;
+          updatedProfiles.length > 0 ? updatedProfiles[0] : null;
       setCurrentProfileVar(nextProfile);
     }
   };
@@ -79,18 +59,18 @@ export const ProfileProvider = ({ children }) => {
   };
 
   return (
-    <ProfileContext.Provider
-      value={{
-        profiles,
-        addProfile,
-        removeProfile,
-        setCurrentProfile,
-        removeAllProfiles,
-        currentProfile,
-      }}
-    >
-      {children}
-    </ProfileContext.Provider>
+      <ProfileContext.Provider
+          value={{
+            profiles,
+            addProfile,
+            removeProfile,
+            setCurrentProfile,
+            removeAllProfiles,
+            currentProfile,
+          }}
+      >
+        {children}
+      </ProfileContext.Provider>
   );
 };
 

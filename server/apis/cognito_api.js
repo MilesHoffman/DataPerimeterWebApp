@@ -50,12 +50,11 @@ async function getAWSCredentials(idToken, poolData, IDENTITY_POOL_ID, REGION) {
     const getCredentialsCommand = new GetCredentialsForIdentityCommand(getCredentialsParams);
     const credentialsResponse = await cognitoIdentityClient.send(getCredentialsCommand);
 
-    const credentials = {
+    return {
       accessKeyId: credentialsResponse.Credentials.AccessKeyId,
       secretAccessKey: credentialsResponse.Credentials.SecretKey,
       sessionToken: credentialsResponse.Credentials.SessionToken,
     };
-    return credentials;
   } catch (error) {
     console.error("Error getting AWS credentials:", error);
     throw error;
@@ -68,8 +67,6 @@ async function getAWSCredentials(idToken, poolData, IDENTITY_POOL_ID, REGION) {
  * Authenticates a user with Cognito User Pools and handles challenges.
  * @param {string} username - User's username.
  * @param {string} password - User's password.
- * @param {string} userPoolId
- * @param {string} idPoolId
  * @param {string} clientId
  * @returns {object} - Authentication tokens.
  */
@@ -180,6 +177,7 @@ async function refreshSession(refreshToken, clientId) {
     throw error;
   }
 }
+
 
 // Main function for testing the authentication and S3 access
 async function main() {

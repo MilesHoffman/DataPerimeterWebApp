@@ -1,4 +1,4 @@
-import React, {useState, useContext} from "react";
+import React, {useState, useContext, useEffect} from "react";
 import {
 	Box,
 	Button,
@@ -45,6 +45,8 @@ const presetParser = (preset) => {
 			return presets.puppy;
 		case 'Competitor LLC':
 			return presets.competitor;
+		case 'None':
+			return null
 		default:
 			return null
 	}
@@ -77,12 +79,21 @@ function LoginPage() {
 
 	const handlePresetChange = (event, newValue) => {
 		let presetValues = presetParser(newValue)
+
+		// Exit if there is no preset selected
+		if(presetValues === null){
+			setClientId('')
+			setUserPoolId('')
+			setIdPool('')
+			setPresetChange('None')
+			return
+		}
+
 		setClientId(presetValues.clientId)
 		setUserPoolId(presetValues.userPoolId)
 		setIdPool(presetValues.identityPoolId)
 		setPresetChange(newValue)
 	}
-
 	// Handle the login form submission
 	const handleLogin = async (event) => {
 		event.preventDefault();
@@ -196,8 +207,8 @@ function LoginPage() {
 					<Autocomplete
 						onChange={handlePresetChange}
 						value={presetChange}
-						options={['Canine LLC', 'Dog LLC', 'Puppy LLC', 'Competitor LLC']}
-						renderInput={(params) => <TextField {...params} label="Set Identity ID" />}
+						options={['Canine LLC', 'Dog LLC', 'Puppy LLC', 'Competitor LLC', 'None']}
+						renderInput={(params) => <TextField {...params} label="Select Preset" />}
 					/>
 
 					<Button variant="contained" color="primary" type="submit">
