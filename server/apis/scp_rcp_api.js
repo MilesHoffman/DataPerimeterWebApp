@@ -1,6 +1,11 @@
-const { OrganizationsClient, AttachPolicyCommand } = require("@aws-sdk/client-organizations")
-const {  DetachPolicyCommand, ListTargetsForPolicyCommand, ListPoliciesForTargetCommand, paginateListRoots,paginateListPoliciesForTarget, paginateListPolicies, paginateListTargetsForPolicy } = require("@aws-sdk/client-organizations")
-
+const {
+	OrganizationsClient,
+	AttachPolicyCommand,
+	DetachPolicyCommand,
+	paginateListRoots,
+	paginateListPoliciesForTarget,
+	paginateListPolicies,
+} =  require("@aws-sdk/client-organizations")
 
 //Helper function to handle pagination.
 async function getAllPaginatedResults(client, paginatorFunction, params) {
@@ -51,7 +56,7 @@ async function listAllPolicies(client, filter) {
 		console.log('...getting a list of all policies...')
 		return await getAllPaginatedResults(client, paginateListPolicies, { Filter: filter })
 	} catch (error) {
-		console.error("Error listing all SCPs:", error)
+		console.error("Error listing all policies:")
 		throw error
 	}
 }
@@ -63,7 +68,7 @@ async function listRoots(client) {
 		const result = await getAllPaginatedResults(client, paginateListRoots, {})
 		return result
 	} catch (error) {
-		console.error("Error listing roots:", error)
+		console.error("Error listing roots:")
 		throw error
 	}
 }
@@ -79,7 +84,7 @@ async function listPoliciesForTarget(targetId, client, filter) {
 	try {
 		return await getAllPaginatedResults(client, paginateListPoliciesForTarget, { TargetId: targetId, Filter: filter })
 	} catch (error) {
-		console.error(`Error listing policies for target ${targetId}:`, error)
+		console.error(`Error listing policies for target ${targetId}`)
 		throw error
 	}
 }
@@ -104,7 +109,7 @@ async function attachPolicy(policyId, targetId, client) {
 			console.log('...policy is already attached...')
 		}
 		else{
-			console.error(`Error attaching policy ${policyId} to target ${targetId}:`, error)
+			console.error(`Error attaching policy ${policyId} to target ${targetId}`)
 			throw error
 		}
 	}
@@ -129,7 +134,7 @@ async function detachPolicy(policyId, targetId, client) {
 			console.log('...policy is already detached...')
 		}
 		else{
-			console.error(`Error detaching policy ${policyId} to target ${targetId}:`, error)
+			console.error(`Error detaching policy ${policyId} to target ${targetId}`)
 			throw error
 		}
 	}
@@ -144,7 +149,7 @@ async function detachPolicy(policyId, targetId, client) {
  * @param policyName
  * @param policyType - Specifies the policy type (SERVICE_CONTROL_POLICY or RESOURCE_CONTROL_POLICY)
  * @param attached {boolean} - Policy will be toggled according to this
- * @returns {Promise<void>}
+ * @returns {Promise<boolean>}
  */
 async function togglePolicy(
 		accessKeyId,
@@ -178,11 +183,55 @@ async function togglePolicy(
 			await attachPolicy(targetPolicyId, rootId, client) :
 			await detachPolicy(targetPolicyId, rootId, client)
 
+		return true
 	}catch (e){
 		console.log(`Error in togglePolicy function:\n ${e}\n`)
-		throw e
+		return false
 	}
 }
+
+/**
+ * Checks if a policy is attached to the root target.
+ *
+ * @param {string} accessKeyId - AWS access key ID.
+ * @param {string} secretAccessKey - AWS secret access key.
+ * @param {string} sessionToken - AWS session token.
+ * @param {string} policyName - The name of the policy.
+ * @param {string} policyType - The type of the policy (e.g., 'SERVICE_CONTROL_POLICY').
+ * @returns {Promise<boolean>} - An object indicating if the policy is attached.
+ */
+async function isPolicyAttached(accessKeyId, secretAccessKey, sessionToken, policyName, policyType) {
+	const region = 'us-east-2';
+
+	try {
+		const client = createOrganizationsClient(accessKeyId, secretAccessKey, sessionToken, region);
+
+		// Get list of all policies of the specified type
+		const allPolicies = await listAllPolicies(client, policyType);
+
+		// Find the target policy by name
+		const targetPolicy = findPolicy(policyName, allPolicies);
+		if (!targetPolicy) {
+			console.log(`Policy named ${policyName} not found.`);
+			return false; // Policy doesn't exist, so it's not attached
+		}
+		const targetPolicyId = targetPolicy.Id
+
+		// Get the root ID
+		const roots = await listRoots(client);
+		const rootId = roots[0].Id;
+
+		// List policies attached to the root
+		const attachedPolicies = await listPoliciesForTarget(rootId, client, policyType);
+
+		// Check if the target policy is in the list of attached policies
+		return attachedPolicies.some(policy => policy.Id === targetPolicyId);
+	} catch (error) {
+		console.error("Error: In checking if policy is attached:", error);
+		return false
+	}
+}
+
 
 async function main() {
 
@@ -191,12 +240,12 @@ async function main() {
 	const sessionToken =  "IQoJb3JpZ2luX2VjEKn//////////wEaCXVzLWVhc3QtMiJHMEUCIHNijsJIVMDpq0qDshNg//Yr84CBznNqT3dIFYQWmcgXAiEAlmWZDXgDVgk/GzSOSmR5R7RlluN/z4c7JaY0IIelz5sqzQQIwv//////////ARAAGgw2MDA2MjczNTg5MTEiDCBVgxb7MQ0fNwVgGSqhBGNEdibEfkewMu2h79KjJaR9bmMuYjvtziMNSfF0M3zw0d1Y0Ja2d2Miml9/5vXCyH7uuzBw13udzzG9mN6LPSVFjd9pOGilJiAHOqudFN3Ulk5ZjgvvcqHnm8S8CDes9NedT6zvnWQFmiyYa/re61NYQHKw6iz59dp+4O/mWt8oBgRHzAv34dl3OyCM6iM/cSOMRfrSxrhhixRQCdIhxwDGqGSqYTZHTe1fXVK3Kbm7Knt/EcPtqRZ5h4C8FhAsvZRsKJsiDHFXZmTAxgTvS0zfRL7bs5+qjDt51Df8RkNyv27SBOSQSsO+rE1v0z05ABzDtWtzq6Ib93eABaZUZP4vY9vKrhkcjB8g7lOMkMVad2/BvmHkC/EFHlYNNhDBs8/tlWDOisMxSW9ZgnWJTwo5tXmuc3ryQfOSijzxAQyDoeDN880IQmtkXr7+5sirs3FWjJPeqanPB1OTjn+7pxQl78fEKVdHPRcAqGw3O1caSAdYHcc+95CFemtz9b1fPHNYOvgWCFhMRWJRqfxmHuH8kUz+dYo8OeLnOe8BCeA2G27EkcXCICY1lNNZ1o9UEpZ4fKwjzuOXoS9lyAkKDd5FFbvA3Edi+8rxUnltpNg2ZO/NNNimvq8vAoTNeYzavxxbCAlx9hJljt/Dsnd3VXrFmDPo0YCSo5aHVJQl/bMElgv+btd05hRW82ajb4rVobPelbOCYKjiS4c4cNRA/0T3MMbVqL0GOoUCsocpUpFh6wUVAgnWsp7L3147FEJ6DNioqlhkjKSo58aWigKb2vChZRRVrEAghzki7wKn6tr/IUXTGF6qmPCYOW6EqjHNsMXA1VhOl4lTlA6O5vDJ45rcoxT1wCpmFR3pisQAfX1Zd+9/M5/j9KAJkp4jnF3tlFGT9Z/eGFQmZzY0py8L6g889VTnztA4hrOGvz06AbzlYS/zACJQeROc/menWLL12B9IQW6bmQCReIIlvzevhN/Q3SQzPx/Iy5UYOQ3KIFF1irjXTYOCmDVMWD+dJb+QEICAi2Ymje9TUDZThJfl/dkErIfi6+NCi4+VhKpqqwWEbjvWaFmMu8pUl0PIjWVr"
 
 	const region = 'us-east-2'
-	const policyName = 'Network_Perimeter_2'
+	const policyName = 'Network_Perimeter_22222222222'
 	const policyType = 'RESOURCE_CONTROL_POLICY'
 	try{
 
 		const attached = false
-		togglePolicy(accessKeyId, secretAccessKey, sessionToken, policyName, policyType, attached)
+		const promise = togglePolicy(accessKeyId, secretAccessKey, sessionToken, policyName, policyType, attached)
 
 	}catch (e){
 		console.log(`Error in scp_scp_api main function:\n ${e}\n`)
@@ -204,4 +253,9 @@ async function main() {
 	}
 }
 
-main()
+if(require.main === module){
+	main()
+}
+
+
+module.exports = {togglePolicy, isPolicyAttached}

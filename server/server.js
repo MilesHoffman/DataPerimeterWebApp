@@ -15,6 +15,7 @@ const {
 } = require("./apis/cognito_api");
 const {getS3Resources,addS3Resource} = require("./apis/resource_api");
 const {readFileSync} = require("node:fs");
+const {togglePolicy, isPolicyAttached} = require("./apis/scp_rcp_api");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -34,7 +35,7 @@ app.post("/api/login", async (req, res) => {
 	try {
 		// Authenticate the user with Cognito
 		const tokens = await authenticateUser(username, password, clientId);
-		console.log("Cognito authentication successful:", tokens);
+		console.log("Cognito authentication successful");
 
 		// Attach credentials
 		tokens.userPoolId = userPoolId;
@@ -49,13 +50,13 @@ app.post("/api/login", async (req, res) => {
 			tokens.accessKeyId = credentials.accessKeyId
 			tokens.secretAccessKey = credentials.secretAccessKey
 			tokens.sessionToken = credentials.sessionToken
-			console.log("AWS Credentials retrieved:", tokens)
+			console.log("AWS Credentials retrieved")
 		} catch (error) {
 			console.error("Error retrieving AWS credentials:", error)
 		}
 
 		// Send the tokens back to the client
-		console.log("Sending tokens back to client:", tokens)
+		console.log("Sending tokens back to client")
 		res.json(tokens)
 	} catch (error) {
 		// Log and send back an error response if something goes wrong
@@ -240,6 +241,89 @@ app.post("/api/resource/add", async (req, res) => {
 		res.status(500).json({ success: false, message: "Server error: " + error.message })
 	}
 
+})
+
+
+/**
+ * Turns on the policy specified. Only the management account has the credentials for this.
+ *
+ * @param accessKeyId
+ * @param secretAccessKey
+ * @param sessionToken
+ * @param policyName
+ * @param policyType
+ * @return success Returns a success boolean variable
+ */
+app.post("/api/perimeter/attach", async (req, res) => {
+
+	try{
+		const {accessKeyId, secretAccessKey, sessionToken, policyName, policyType} = req.body
+
+		// Turns on the policy
+		const response = await togglePolicy(
+			accessKeyId, secretAccessKey, sessionToken, policyName, policyType, true)
+
+		res.json({success: response})
+	}
+	catch (error){
+		console.log('...Error in attach call: ', error)
+		res.json({success: false})
+	}
+})
+
+/**
+ * Turns off the policy specified. Only the management account has the credentials for this.
+ *
+ * @param accessKeyId
+ * @param secretAccessKey
+ * @param sessionToken
+ * @param policyName
+ * @param policyType
+ * @return success Returns a success boolean variable
+ */
+app.post("/api/perimeter/detach", async (req, res) => {
+
+	try{
+		const {accessKeyId, secretAccessKey, sessionToken, policyName, policyType} = req.body
+
+		// Turns on the policy
+		const response = await togglePolicy(
+			accessKeyId, secretAccessKey, sessionToken, policyName, policyType, false)
+
+		res.json({success: response})
+	}
+	catch (error){
+		console.log('...Error in detach call: ', error)
+		res.json({success: false})
+	}
+})
+
+
+/**
+ * Turns off the policy specified. Only the management account has the credentials for this.
+ *
+ * @param accessKeyId
+ * @param secretAccessKey
+ * @param sessionToken
+ * @param policyName
+ * @param policyType
+ * @return success Returns a json with boolean variables
+ */
+app.post("/api/perimeter/check", async (req, res) => {
+
+	try{
+		const {accessKeyId, secretAccessKey, sessionToken, policyName, policyType} = req.body
+
+		// Checks if the policy is attached
+		const response = await isPolicyAttached(
+			accessKeyId, secretAccessKey, sessionToken, policyName, policyType)
+
+		res.json({attached: response, error: false})
+	}
+	catch (error){
+		console.log('...Error in checking if policy is attached: ', error)
+		res.json({attached: false, error: true})
+	}
 })
 
 // Start the Express server on the specified port
