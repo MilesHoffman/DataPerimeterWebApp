@@ -206,7 +206,7 @@ async function addS3Resource(profile, bucketName, objectKey, fileContent, conten
 //main for testing
 
 
-async function getBucketCompliance(accessKeyId, secretAccessKey, sessionToken, bucketName){
+async function getBucketCompliance(accessKeyId, secretAccessKey, sessionToken, bucketName ){
 
     if(!accessKeyId || !secretAccessKey || !sessionToken){
         return {compliance: null, msg: 'Error. Unable to perform compliance check. Misconfigured arguments.'}

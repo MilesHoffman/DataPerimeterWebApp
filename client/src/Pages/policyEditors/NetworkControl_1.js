@@ -1,30 +1,112 @@
-import { useState } from 'react';
-import {Autocomplete, Box, Button, Divider, Fab, TextField, Typography, useTheme} from '@mui/material';
-import CastleIcon from '@mui/icons-material/Castle';
-import {DynamicTextFieldList} from "../../components/DynamicTextFieldList";
-import PublishIcon from '@mui/icons-material/Publish';
-
-
-const initializeValues = () => {
-	// this will eventually set all the values ater grabbing them from the API
-}
+import {useState, useEffect, useContext} from 'react'
+import {Autocomplete, Box, Button, Divider, Fab, TextField, Typography, useTheme} from '@mui/material'
+import CastleIcon from '@mui/icons-material/Castle'
+import {DynamicTextFieldList} from "../../components/DynamicTextFieldList"
+import PublishIcon from '@mui/icons-material/Publish'
+import axios from 'axios'
+import ProfileContext from "../../logic/profileLogic";
 
 export default function NetworkControlOne() {
 
 	const colors = useTheme().palette
 
-	const [textSid, setTextSid] = useState('');
-	const [hasChanged, setChanged] = useState(false);
+	const [policyName, setPolicyName] = useState('')
+	const [textSid, setTextSid] = useState('')
+	const [hasChanged, setChanged] = useState(false)
 	const [effect, setEffect] = useState('Deny')
-	const [action, setAction] = useState('')
-	const [resource, setResource] = useState('')
-	const [ipAddresses, setIpAddresses] = useState([''])
-	const [vpcIds, setVpcIds] = useState([''])
+	const [action, setAction] = useState([''])
+	const [resources, setResources] = useState([''])
+	const [sourceIps, setSourceIps] = useState([''])
+	const [sourceVpcs, setSourceVpcs] = useState([''])
+	const {currentProfile} = useContext(ProfileContext)
 
+	const fetchData = async () => {
+		try {
+			//TODO: replace with real values
+			const accessKeyId = currentProfile.accessKeyId
+			const secretAccessKey = currentProfile.secretAccessKey
+			const sessionToken = currentProfile.sessionToken
+			const policyName = "Network_Perimeter_1"
+
+			const response = await axios.post('/api/perimeter/getNetwork1Info', {
+				accessKeyId,
+				secretAccessKey,
+				sessionToken,
+				policyName,
+			})
+
+			if (response.data.success) {
+				const data = response.data
+				setPolicyName(data.policyName)
+				setTextSid(data.sid)
+				setEffect(data.effect)
+				setAction(data.action)
+				setResources(data.resources)
+				setSourceIps(data.sourceIps)
+				setSourceVpcs(data.sourceVpcs)
+				setChanged(false)
+			} else {
+				console.error("Failed to fetch policy data:", response.data.message)
+			}
+		} catch (error) {
+			console.error("Error fetching policy data:", error)
+		}
+	}
+
+	useEffect(() => {
+		fetchData()
+	}, [])
 
 	const handleChangeSid = (event) => {
-		setTextSid(event.target.value);
-	};
+		setTextSid(event.target.value)
+		setChanged(true)
+	}
+
+	const handleEffectChange = (event, newValue) => {
+		setEffect(newValue)
+		setChanged(true)
+	}
+
+	const handleActionChange = (event, newValue) => {
+		setAction(newValue)
+		setChanged(true)
+	}
+	const handleResourceChange = (event, newValue) => {
+		setResources(newValue)
+		setChanged(true)
+	}
+
+	const handleSavePolicy = async () => {
+		try {
+			// todo add snackbar
+			const accessKeyId = currentProfile.accessKeyId
+			const secretAccessKey = currentProfile.secretAccessKey
+			const sessionToken = currentProfile.sessionToken
+
+			const response = await axios.post('/api/perimeter/modifyNetwork1', {
+				accessKeyId,
+				secretAccessKey,
+				sessionToken,
+				policyName,
+				effect,
+				action,
+				resources,
+				sourceIps,
+				sourceVpcs,
+			})
+
+			console.log(response.data)
+
+			if (response.data.success) {
+				console.log("Policy updated successfully")
+				setChanged(false)
+			} else {
+				console.error("Failed to update policy")
+			}
+		} catch (error) {
+			console.error("Error updating policy:", error)
+		}
+	}
 
 	const MyDivider = () => {
 		return(
@@ -69,9 +151,11 @@ export default function NetworkControlOne() {
 				Effect on your actions:
 			</Typography>
 			<Autocomplete
-				options={['Deny','Allow']}
+				value={effect}
+				onChange={handleEffectChange}
+				options={['Deny']}
 				sx={{ width: 300 }}
-				renderInput={(params) => <TextField value={effect} {...params} label="Effect" />}
+				renderInput={(params) => <TextField  {...params} label="Effect" />}
 			/>
 
 			<MyDivider />
@@ -80,9 +164,12 @@ export default function NetworkControlOne() {
 				Actions watched:
 			</Typography>
 			<Autocomplete
+				multiple
+				value={action}
+				onChange={handleActionChange}
 				options={['*']}
 				sx={{ width: 300 }}
-				renderInput={(params) => <TextField value={action} {...params} label="Set Action" />}
+				renderInput={(params) => <TextField  {...params} label="Set Action" />}
 			/>
 
 			<MyDivider />
@@ -91,9 +178,12 @@ export default function NetworkControlOne() {
 				Resources protected:
 			</Typography>
 			<Autocomplete
-				options={['S3 Buckets', '*']}
+				multiple //for multiple select
+				value={resources}
+				onChange={handleResourceChange}
+				options={['*']}
 				sx={{ width: 300 }}
-				renderInput={(params) => <TextField value={resource} {...params} label="Set Resource" />}
+				renderInput={(params) => <TextField  {...params} label="Set Resource" />}
 			/>
 
 			<MyDivider />
@@ -101,19 +191,19 @@ export default function NetworkControlOne() {
 			<Typography>
 				Allowed IP Addresses:
 			</Typography>
-			<DynamicTextFieldList setValues={setIpAddresses} values={ipAddresses} textBoxLabels={'IP Address'} />
+			<DynamicTextFieldList setValues={setSourceIps} values={sourceIps} textBoxLabels={'IP Address'} />
 
 			<MyDivider />
 
 			<Typography>
 				Allowed VPCs:
 			</Typography>
-			<DynamicTextFieldList setValues={setVpcIds} values={vpcIds} textBoxLabels={'VPC'} />
+			<DynamicTextFieldList setValues={setSourceVpcs} values={sourceVpcs} textBoxLabels={'VPC'} />
 
 			<Fab
 				variant="extended"
 				color={'secondary'}
-				disabled={hasChanged}
+				onClick={handleSavePolicy}
 				sx={{
 					position: 'fixed',
 					bottom: 50,
@@ -124,5 +214,5 @@ export default function NetworkControlOne() {
 				Save Policy
 			</Fab>
 		</div>
-	);
+	)
 }

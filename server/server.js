@@ -16,6 +16,7 @@ const {
 const {getS3Resources,addS3Resource} = require("./apis/resource_api");
 const {readFileSync} = require("node:fs");
 const {togglePolicy, isPolicyAttached} = require("./apis/scp_rcp_api");
+const {createNetworkPerimeterSCP, deleteSCP, getNetworkPerimeter1Info} = require("./apis/scp_api");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -325,6 +326,80 @@ app.post("/api/perimeter/check", async (req, res) => {
 		res.json({attached: false, error: true})
 	}
 })
+
+/**
+ * Recreates a network perimeter SCP (deletes and then creates).
+ *
+ * @param accessKeyId
+ * @param secretAccessKey
+ * @param sessionToken
+ * @param policyName
+ * @param effect
+ * @param action
+ * @param resources
+ * @param sourceIps
+ * @param sourceVpcs
+ * @return success Returns a json with boolean variables
+ */
+app.post("/api/perimeter/modifyNetwork1", async (req, res) => {
+	try {
+		const { accessKeyId, secretAccessKey, sessionToken, policyName,
+			effect, action, resources, sourceIps, sourceVpcs
+		} = req.body;
+
+		// delete the existing policy if it exists
+		const deleteSuccess = await deleteSCP(
+			accessKeyId, secretAccessKey, sessionToken, policyName
+		);
+
+		// Even if deletion fails because the policy doesn't exist, proceed to create
+		if (!deleteSuccess) {
+			console.log(`...Policy deletion failed (possibly did not exist). Proceeding with creation.`);
+		}
+
+		// create the policy
+		const createSuccess = await createNetworkPerimeterSCP(
+			accessKeyId, secretAccessKey, sessionToken, policyName, effect, action, resources, sourceIps, sourceVpcs
+		);
+
+		res.json({ success: createSuccess });
+
+	} catch (error) {
+		console.error("Error in recreating network perimeter SCP:", error);
+		res.json({ success: false });
+	}
+});
+
+
+/**
+ * Retrieves information about a network perimeter SCP.
+ *
+ * @param accessKeyId
+ * @param secretAccessKey
+ * @param sessionToken
+ * @param policyName
+ * @return {Promise<void>} Returns a JSON object containing the policy information or an error.
+ */
+app.post("/api/perimeter/getNetwork1Info", async (req, res) => {
+	try {
+		const { accessKeyId, secretAccessKey, sessionToken, policyName } = req.body
+
+		const policyInfo = await getNetworkPerimeter1Info(accessKeyId, secretAccessKey, sessionToken, policyName)
+
+		if (!policyInfo) {
+			res.json({success: false, message: `Policy named ${policyName} not found.` })
+			return
+		}
+
+
+		res.json({ success: true, ...policyInfo })
+
+	} catch (error) {
+		console.error("Error in getting network perimeter info:", error)
+		res.json({ success: false, error: error.message })
+	}
+})
+
 
 // Start the Express server on the specified port
 app.listen(PORT, () => {
