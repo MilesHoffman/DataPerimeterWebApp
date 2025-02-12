@@ -235,9 +235,10 @@ async function isPolicyAttached(accessKeyId, secretAccessKey, sessionToken, poli
 
 async function main() {
 
-	const accessKeyId = "ASIAYXWBOFS7ZO65UFQ7";
-	const secretAccessKey = "DiOAxYeXkmD79Zamij8z3nTNehzgtGIRlcWMiNIa"
-	const sessionToken =  "IQoJb3JpZ2luX2VjEMX//////////wEaCXVzLWVhc3QtMiJHMEUCIQDSHmnos4zE7dCuDurg6NpRndeTfJD8D2wPX4jRhTMDxAIgWliApvsdixK80tdr+N+c4zZt9z1oULC265wXl+P7evgqzQQI3v//////////ARAAGgw2MDA2MjczNTg5MTEiDDPZwPAAhwpTwSpiBiqhBOUS1Y/u6S/WeWgsv2hSO+9StYwYo6710B/ZB9zRbkwy29ude/cJoWEO/kwnFdpA3JgdAMEv2PtT4X/NQEfZWkCtShynTNDH6FhXa+gnuEX96pgADAk2YYKEPNnmFUrmyrqKExdPUgH/5XYWfnlbr/dMJJUBamGfCoZ347VJmiFcPD06+cGnefAKwECQGE+FXa5SNVsdfJn5svWER81fb8jRm1h6kpGBj38credbm8tbu/c9tRnUPUkALqENzHY9bU/MGeL5H7RQzhitPkwtGTpEMe+LNSgxEOEIHvCWIZsPCDYrHAv+R51hZzCheyOdE8EaLbPExU7MD73l7A9mZbEzqu43x/G2dE1yIIdepLPQEKp9onyBjV+UU3zy0OPfcALshcss15mx499SLv3R+xaG5dbi4He4py7AkktGTJF2iJrf+GMzwRHLTYz2ObYYJMrA1MVMJRsm8VoQfwdqwhyU32UC/6eSD0AX0LELkgGAOMeTagkdfJ0fN9X1EYjSxJHJWcQU+2WpPggVgXp2s9pvpK1zVgQn3q97FFI5Rid3Qym8jC3nC+lNvwl4k1hSDCMn1z4BFPnY0x7xt2HTPJxdVDQxA+6wYFhAzeZ75MzGlO2vEyjBwE6bNL9F305KWP5jZhXWN+Bj6PyhJPuBqATt/fxP9eor6mNorknZ3GARxm1iRrb0NTnpzRs4nOdyhE5hX1nrJJ8wVkZT7CjtJVk2MJ7+rr0GOoUC2E4jeSCjdQBoEpqT7lg/lI1xoTEEs19GjT2jMJVADtqdLR4+L8lZXGv68UqC7TsJUtO/H/pZiHopXegcDxfEwvs6RCkMKZxNyd2ml8pqxrMWTsxsT4bdXUzI0JJP965+CYCxHN2hbmcCdSg8ZZ0T4n3Eo6Oyi1N289wT0SLbIDalU7Tj1NrPEhxkp+XOtxeZnHbjiZZhF5IniAtVnjqaJi6xYjUOgvNCCfqNhm6FZ4mx00xxwWNa9yy6JrI71Kjtqno5726nHX+v4HD7GCgUulJXivPNl43mUolWQAuGfE3T8dBUKyZFYTQ3azRJo+bh/kkd74AAFlXiiU1yokIZo8woXj21"
+	const accessKeyId = ''
+	const secretAccessKey = ''
+	const sessionToken =  ''
+
 	const region = 'us-east-2'
 	const policyName = 'Network_Perimeter_22222222222'
 	const policyType = 'RESOURCE_CONTROL_POLICY'

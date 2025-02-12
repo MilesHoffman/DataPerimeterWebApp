@@ -349,9 +349,9 @@ async function main() {
 
 	// Please dont lock us out. make sure the IP list is right.
 
-	const accessKeyId = "ASIAYXWBOFS7TXC5RT3N"
-	const secretAccessKey = "+rggxoOHmM2vZBz0xZuCTAz9y9DSusdIn4Eu4ePY"
-	const sessionToken = "IQoJb3JpZ2luX2VjEMj//////////wEaCXVzLWVhc3QtMiJGMEQCID+uH+NhSTY/D0SVGEMTOhClwxVuQV2NPagqXJnxgCS7AiBSTL+/V/2k/wEmHChpZqhT79dnZX/u2y3o8+rV5QcXASrNBAjh//////////8BEAAaDDYwMDYyNzM1ODkxMSIMHOLnG2k93/lZcAfGKqEE/+dMzzy0jknK/w5rYVIiX/SWHv8KVZwZxezMetSwHw2/+MbnkowQ+UbsBUbv9Gb+aprqsc3LzuHW+1DVbIiHjpZa/OpxgWLyETrFhP3CEbypAv238bt0lc8Fb8ymHJ5ns/socaJNhi/73pDNx9njZfoZvG+lcAIACHFzfoQU9PygJSvtGO7GLgDh7eGedA4wEHQ+Gq6su2XQnNdLTVTXwa6jAMs74Lu5VjywuHjHoMQ5IXJfL8D6apzQjdpAzXLBMB6foWuhcA9yh4aBVsGj5VB4ywggMWDWgvHZXdpvqxEs9VM4MoLF1Wz2ZnSchbeOMaVYvEFIvGPnHJCRx12Gy5SZ/4uisWqF6+AMd5orPSc8cb3RLt4CEC9VUdBvCcMHigIdIJxLo9eKg23HNgjduXcEo9xI1uAQT2ccovFqEFwJ7C2pUmr27v9VXJBV1tkUPQWVnQYEWqJs3WbvHJ5i1VSi2SlbXzfL5Os1itMtqKoGMjSp+/qg7S2jb0YRs0/YkgkxeitwUWoa9phm40p0kzQeJ3oX8M+O9QxZz2bmu8onVP20XhajZ6zzRvco7HaEI0ZaToxCjqvmke9mqIdIvwlUEBgEuxpfvuzw0DsLIAGeLJ/b5ybVbAcyEcAL3nGnAtMztujIj/PBrfcYlytCWQP5etCPBnNcwMU1TV8isxayYy7AUF4CqfgOSdQOBATSBgCPtEMp7jim0ElKpGGeRegw8cCvvQY6hgIUmk1NfFi3GePH1Liy3ekaPN66njLSP/osQ12uG39wUt0+Csg3W7mC/W0jvT+E5ex53Od/W2Bq1J6VhBN5fdbbPGcnAJOZOxif1bSctoq+B1oHJOSZDosplnyXlzOdvEYdblqoZQ9q7tL5Rwze5AlCet5tgTLU0tK8QB9rjk6vuLRufnUxmbMm6nnb+yaZzClMjxHSqLxE/w50ZK8wHirfiSs2lMJ3TVIUACg6G+w58TJ7F9ooXjkwXei5dCaM5t348YlfpgoGvXkiCEUy6+5h3WQH+Jbe8cd5v10Wq1WceqDJUKBrQ5dhkbk85APGHr/kGT4lA+lExgcliNmwta0aLlw7HwkK"
+	const accessKeyId = ''
+	const secretAccessKey = ''
+	const sessionToken = ''
 
 	const policyName = "Network_Perimeter_1"
 	const effect = "Deny"
