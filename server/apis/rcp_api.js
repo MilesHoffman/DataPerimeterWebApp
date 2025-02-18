@@ -217,24 +217,47 @@ async function getNetworkPerimeter2Info(
     );
     const policyContent = JSON.parse(policyDetails.Content);
     const statement = policyContent.Statement[0];
+
+    // Ensure all fields are arrays so that the UI can safely call .map()
+    const actionArr = Array.isArray(statement.Action)
+      ? statement.Action
+      : statement.Action
+      ? [statement.Action]
+      : [];
+    const resourcesArr = Array.isArray(statement.Resource)
+      ? statement.Resource
+      : statement.Resource
+      ? [statement.Resource]
+      : [];
+
+    let sourceIps = [];
+    if (
+      statement.Condition &&
+      statement.Condition.NotIpAddressIfExists &&
+      statement.Condition.NotIpAddressIfExists["aws:SourceIp"]
+    ) {
+      const val = statement.Condition.NotIpAddressIfExists["aws:SourceIp"];
+      sourceIps = Array.isArray(val) ? val : [val];
+    }
+
+    let sourceVpcs = [];
+    if (
+      statement.Condition &&
+      statement.Condition.StringNotEqualsIfExists &&
+      statement.Condition.StringNotEqualsIfExists["aws:SourceVpc"]
+    ) {
+      const val = statement.Condition.StringNotEqualsIfExists["aws:SourceVpc"];
+      sourceVpcs = Array.isArray(val) ? val : [val];
+    }
+
     return {
       policyName,
       sid: statement.Sid,
       effect: statement.Effect,
-      action: Array.isArray(statement.Action)
-        ? statement.Action
-        : [statement.Action],
-      resources: Array.isArray(statement.Resource)
-        ? statement.Resource
-        : [statement.Resource],
-      sourceIps:
-        statement.Condition && statement.Condition.NotIpAddressIfExists
-          ? statement.Condition.NotIpAddressIfExists["aws:SourceIp"]
-          : [],
-      sourceVpcs:
-        statement.Condition && statement.Condition.StringNotEqualsIfExists
-          ? statement.Condition.StringNotEqualsIfExists["aws:SourceVpc"]
-          : [],
+      action: actionArr,
+      resources: resourcesArr,
+      sourceIps,
+      sourceVpcs,
     };
   } catch (error) {
     console.error("Error extracting network perimeter RCP info:", error);
