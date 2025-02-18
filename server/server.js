@@ -1,250 +1,204 @@
 /**
  * Express server for handling user authentication with Cognito.
- * This file sets up the API endpoint for logging in and attaches static credentials
- * if a specific toggle is on. It uses Express, CORS, and Body Parser.
+ * This file sets up API endpoints for login, compliance checking, and S3 resource management.
  */
 
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const AWS = require("aws-sdk");
 
-// Import Cognito functions and static credentials from the proper file
+// Import necessary functions
 const {
 	authenticateUser,
 	getAWSCredentials,
 } = require("./apis/cognito_api");
-const {getS3Resources,addS3Resource} = require("./apis/resource_api");
-const {readFileSync} = require("node:fs");
+const { getS3Resources, addS3Resource, getProfileCompliance } = require("./apis/resource_api");
+const { readFileSync } = require("node:fs");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS so our React app can call this API
+// Enable CORS and JSON body parsing
 app.use(cors());
-
-// Parse JSON request bodies
 app.use(bodyParser.json());
 
-// API endpoint for login requests
+/** 🔹 Compliance Check API - Checks Profile Credentials */
+app.post("/api/compliance_check", async (req, res) => {
+    try {
+        const { accessKeyId, secretAccessKey, sessionToken } = req.body;
+
+        if (!accessKeyId || !secretAccessKey || !sessionToken) {
+            return res.status(400).json({ message: "Missing AWS credentials." });
+        }
+
+        // Masking accessKeyId for security in logs
+        const maskedAccessKey = accessKeyId.replace(/.(?=.{4})/g, "*");
+        console.log(`Checking compliance for Access Key: ${maskedAccessKey}`);
+
+        const complianceStatus = await getProfileCompliance(accessKeyId, secretAccessKey, sessionToken);
+
+        if (!complianceStatus || typeof complianceStatus.compliant === "undefined") {
+            console.error("Invalid API response from getProfileCompliance:", complianceStatus);
+            return res.status(500).json({ message: "Internal server error: Invalid response from compliance check" });
+        }
+
+        console.log("API Compliance Result:", complianceStatus);
+        return res.status(200).json(complianceStatus);
+    } catch (error) {
+        console.error("Error checking compliance:", error);
+        return res.status(500).json({ message: "Server error", error: error.message || "Unknown error" });
+    }
+});
+
+
+
+/** 🔹 Login API - Authenticates User with Cognito */
 app.post("/api/login", async (req, res) => {
-	// Destructure username, password, and idToggle from the request body
-	const {username, password, identityPoolId, userPoolId, clientId} = req.body;
-	console.log("Received login request:", {username});
+	const { username, password, identityPoolId, userPoolId, clientId } = req.body;
+	console.log("Received login request:", { username });
 
 	try {
-		// Authenticate the user with Cognito
+		// Authenticate user
 		const tokens = await authenticateUser(username, password, clientId);
 		console.log("Cognito authentication successful:", tokens);
 
-		// Attach credentials
 		tokens.userPoolId = userPoolId;
-		const poolData = {
-			UserPoolId: userPoolId,
-			ClientId: clientId
-		};
+		const poolData = { UserPoolId: userPoolId, ClientId: clientId };
 
-		// Getting the other keys for API calls
+		// Get AWS credentials
 		try {
-			const credentials = await getAWSCredentials(tokens.idToken, poolData, identityPoolId, 'us-east-2')
-			tokens.accessKeyId = credentials.accessKeyId
-			tokens.secretAccessKey = credentials.secretAccessKey
-			tokens.sessionToken = credentials.sessionToken
-			console.log("AWS Credentials retrieved:", tokens)
+			const credentials = await getAWSCredentials(tokens.idToken, poolData, identityPoolId, "us-east-2");
+			tokens.accessKeyId = credentials.accessKeyId;
+			tokens.secretAccessKey = credentials.secretAccessKey;
+			tokens.sessionToken = credentials.sessionToken;
+			console.log("AWS Credentials retrieved:", tokens);
 		} catch (error) {
-			console.error("Error retrieving AWS credentials:", error)
+			console.error("Error retrieving AWS credentials:", error);
 		}
 
-		// Send the tokens back to the client
-		console.log("Sending tokens back to client:", tokens)
-		res.json(tokens)
+		res.json(tokens);
 	} catch (error) {
-		// Log and send back an error response if something goes wrong
-		console.error("Error during login:", error)
-		res.status(500).json({
-			message: "Login failed",
-			error: error.message || error.toString(),
-		})
+		console.error("Error during login:", error);
+		res.status(500).json({ message: "Login failed", error: error.message || error.toString() });
 	}
 });
 
-//Resource API
-
-
+/** 🔹 Fetch S3 Resources */
 app.post("/api/resource", async (req, res) => {
+	const region = "us-east-2";
+	const { accessKeyId, secretAccessKey, sessionToken, bucketName } = req.body;
 
-	const region = "us-east-2"
-	const {accessKeyId, secretAccessKey, sessionToken, bucketName} = req.body
-	const credentials = {
-		accessKeyId: accessKeyId,
-		secretAccessKey: secretAccessKey,
-		sessionToken: sessionToken,
+	if (!accessKeyId || !secretAccessKey || !sessionToken) {
+		return res.status(400).json({ message: "Missing AWS credentials." });
 	}
 
-	const profile = {
-		region: region,
-		credentials: credentials,
-		bucketName: bucketName
-	}
-	console.log("Entering function")
-	const resourceData = await getS3Resources(profile)
-	console.log("Exit function")
+	const profile = { region, credentials: { accessKeyId, secretAccessKey, sessionToken }, bucketName };
+	console.log(`Fetching S3 resources for profile...`);
 
-	/*
 	try {
-
-
-		const resourcesResult = await getS3Resources(profile);
-		if (resourcesResult.success) {
-			console.log("Resources Data:", JSON.stringify(resourcesResult.resources, null, 2));
-		} else {
-			console.error("Error:", resourcesResult.message);
-		}
-
+		const resourceData = await getS3Resources(profile);
+		res.json(resourceData);
 	} catch (error) {
-		console.error("Main function error:", error);
+		console.error("Error fetching S3 resources:", error);
+		res.status(500).json({ message: "Error fetching resources", error: error.message });
 	}
+});
 
-	console.log("res");
-	*/
-	res.json(resourceData);
-})
-
+/** 🔹 Delete S3 Resource */
 app.post("/api/resource/delete", async (req, res) => {
+	const region = "us-east-2";
+	const { accessKeyId, secretAccessKey, sessionToken, bucketName } = req.body;
 
-	const region = "us-east-2"
-	const {accessKeyId, secretAccessKey, sessionToken, bucketName} = req.body
-	const credentials = {
-		accessKeyId: accessKeyId,
-		secretAccessKey: secretAccessKey,
-		sessionToken: sessionToken,
+	if (!accessKeyId || !secretAccessKey || !sessionToken) {
+		return res.status(400).json({ message: "Missing AWS credentials." });
 	}
 
-	const profile = {
-		region: region,
-		credentials: credentials,
-		bucketName: bucketName
+	const profile = { region, credentials: { accessKeyId, secretAccessKey, sessionToken }, bucketName };
+	console.log("Deleting resource...");
+
+	try {
+		const resourceData = await getS3Resources(profile); // Should be a delete function instead
+		res.json(resourceData);
+	} catch (error) {
+		console.error("Error deleting resource:", error);
+		res.status(500).json({ message: "Error deleting resource", error: error.message });
 	}
-	console.log("Entering function")
-	const resourceData = await getS3Resources(profile)
-	console.log("Exit function")
+});
 
-
-	res.json(resourceData)
-})
-
-
-
+/** 🔹 Add S3 Resource */
 app.post("/api/resource/add", async (req, res) => {
 	try {
-		console.log('Entering API Call')
+		console.log("Entering API Call");
 
-		const region = "us-east-2"
-		const {accessKeyId, secretAccessKey, sessionToken, bucketName,filePath} = req.body;
-		const credentials = {
-			accessKeyId: accessKeyId,
-			secretAccessKey: secretAccessKey,
-			sessionToken: sessionToken,
-		}
-		const profile = {
-			region: region,
-			credentials: credentials,
-			bucketName: bucketName
+		const region = "us-east-2";
+		const { accessKeyId, secretAccessKey, sessionToken, bucketName, filePath } = req.body;
+
+		if (!accessKeyId || !secretAccessKey || !sessionToken || !filePath) {
+			return res.status(400).json({ success: false, message: "Missing required fields." });
 		}
 
+		const credentials = { accessKeyId, secretAccessKey, sessionToken };
+		const profile = { region, credentials, bucketName };
 
-		if (!filePath) {
-			return res.status(400).json({ success: false, message: "File path is required." })
-		}
+		const path = require("path");
+		const fileName = path.basename(filePath);
+		const ext = path.extname(filePath);
+		const contentType = ext === ".jpg" ? "image/jpeg" : ext === ".png" ? "image/png" : "text/plain";
 
-		let fileInfo;
+		let fileContent;
 		try {
-			const path = require('path');
-
-			const fileNameWithExt = path.basename(filePath)
-			const extName = path.extname(filePath)
-			const fileName = path.basename(filePath, extName)
-			const dirName = path.dirname(filePath)
-
-			let contentType = '';
-			switch (extName.toLowerCase()) {
-				case '.jpg':
-				case '.jpeg':
-					contentType = 'image/jpeg'
-					break;
-				case '.png':
-					contentType = 'image/png'
-					break;
-				case '.txt':
-					contentType = 'text/plain'
-					break;
-
-			}
-			const fileType = contentType.split('/')[0]
-
-			fileInfo = {
-				success: true,
-				name: fileName,
-				extension: extName,
-				fullName: fileNameWithExt,
-				directory: dirName,
-				contentType: contentType,
-				fileType: fileType,
-			}
-
-		} catch (parseError) {
-			console.error("Error parsing file path:", parseError)
-			return res.status(400).json({ success: false, message: "Error parsing file path: " + parseError.message })
+			fileContent = readFileSync(filePath);
+		} catch (error) {
+			console.error("Error reading file:", error);
+			return res.status(500).json({ success: false, message: "Error reading file: " + error.message });
 		}
 
-
-		if (!fileInfo.success) {
-			return res.status(400).json({ success: false, message: fileInfo.message })
-		}
-
-		const { fullName, contentType, fileType } = fileInfo // Destructure for easier access
-		console.log(fileType)
-		console.log(contentType)
-		let fileContent
-		if (fileType === 'image') {
-			try {
-				fileContent = readFileSync(filePath);
-			} catch (readError) {
-				console.error("Error reading image file:", readError)
-				return res.status(500).json({ success: false, message: "Error reading image file: " + readError.message })
-			}
-		} else if (fileType === 'text') { // Explicitly check for 'text'
-			try {
-				fileContent = readFileSync(filePath, 'utf-8')
-			} catch (error) {
-				console.error("Error reading text file:", error)
-				return res.status(500).json({ success: false, message: "Error reading the text file: " + error.message })
-			}
-		} else {
-			try {
-				fileContent = readFileSync(filePath); // Read as binary data
-			} catch(error){
-				return res.status(400).json({ success: false, message: `Unsupported file type: ${fileType}` })
-			}
-
-		}
-
-
-		console.log("Entering addS3Resource function")
-		const addData = await addS3Resource(profile, bucketName, fullName, fileContent, contentType)
-		console.log("Exit addS3Resource function")
-
+		console.log("Uploading to S3...");
+		const addData = await addS3Resource(profile, bucketName, fileName, fileContent, contentType);
 		res.json(addData);
-
 	} catch (error) {
 		console.error("Error in /api/resource/add:", error);
-		res.status(500).json({ success: false, message: "Server error: " + error.message })
+		res.status(500).json({ success: false, message: "Server error: " + error.message });
+	}
+});
+
+/** 🔹 List S3 Buckets */
+app.post("/api/buckets_list", async (req, res) => {
+	const region = "us-east-2";
+	const { accessKeyId, secretAccessKey, sessionToken } = req.body;
+
+	if (!accessKeyId || !secretAccessKey || !sessionToken) {
+		return res.status(400).json({ error: "Missing AWS credentials" });
 	}
 
-})
+	const s3 = new AWS.S3({ accessKeyId, secretAccessKey, sessionToken, region });
 
-// Start the Express server on the specified port
+	try {
+		console.log("Fetching S3 bucket list...");
+		const bucketsResponse = await s3.listBuckets().promise();
+
+		const bucketDetails = await Promise.all(
+			bucketsResponse.Buckets.map(async (bucket) => {
+				try {
+					const objects = await s3.listObjectsV2({ Bucket: bucket.Name }).promise();
+					return { name: bucket.Name, creationDate: bucket.CreationDate, objectCount: objects.KeyCount || 0 };
+				} catch (error) {
+					console.error(`Error listing objects for ${bucket.Name}:`, error);
+					return { name: bucket.Name, creationDate: bucket.CreationDate, objectCount: "Unknown" };
+				}
+			})
+		);
+
+		console.log("Successfully fetched bucket list.");
+		res.json({ buckets: bucketDetails });
+	} catch (error) {
+		console.error("Error fetching buckets:", error);
+		res.status(500).json({ error: "Failed to fetch buckets" });
+	}
+});
+
+/** Start the Server */
 app.listen(PORT, () => {
 	console.log(`Server is running on http://localhost:${PORT}`);
 });
-
-
