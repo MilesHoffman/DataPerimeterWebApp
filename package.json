@@ -1,0 +1,38 @@
+{
+  "name": "dataperimeterwebapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server/index.js",
+    "client": "npm start --prefix client",
+    "server": "nodemon server/server.js",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MilesHoffman/DataPerimeterWebApp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MilesHoffman/DataPerimeterWebApp/issues"
+  },
+  "homepage": "https://github.com/MilesHoffman/DataPerimeterWebApp#readme",
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^6.4.1",
+    "amazon-cognito-identity-js": "^6.3.12",
+    "aws-sdk": "^2.1692.0",
+    "concurrently": "^9.1.2",
+    "nodemon": "^3.1.9",
+    "openid-client": "^6.1.7",
+    "web-vitals": "^4.2.4"
+  },
+  "devDependencies": {
+    "webpack-dev-server": "^5.2.0"
+  }
+}
