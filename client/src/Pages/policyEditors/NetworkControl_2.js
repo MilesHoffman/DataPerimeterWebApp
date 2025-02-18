@@ -1,128 +1,209 @@
-import { useState } from 'react';
-import {Autocomplete, Box, Button, Divider, Fab, TextField, Typography, useTheme} from '@mui/material';
-import CastleIcon from '@mui/icons-material/Castle';
-import {DynamicTextFieldList} from "../../components/DynamicTextFieldList";
-import PublishIcon from '@mui/icons-material/Publish';
-
-
-const initializeValues = () => {
-	// this will eventually set all the values ater grabbing them from the API
-}
+import { useState, useEffect, useContext } from "react";
+import {
+  Autocomplete,
+  Divider,
+  Fab,
+  TextField,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import CastleIcon from "@mui/icons-material/Castle";
+import { DynamicTextFieldList } from "../../components/DynamicTextFieldList";
+import PublishIcon from "@mui/icons-material/Publish";
+import axios from "axios";
+import ProfileContext from "../../logic/profileLogic";
 
 export default function NetworkControlTwo() {
+  const colors = useTheme().palette;
+  const [policyName, setPolicyName] = useState("");
+  const [textSid, setTextSid] = useState("");
+  const [hasChanged, setChanged] = useState(false);
+  const [effect, setEffect] = useState("Deny");
+  const [action, setAction] = useState([""]);
+  const [resources, setResources] = useState([""]);
+  const [sourceIps, setSourceIps] = useState([""]);
+  const [sourceVpcs, setSourceVpcs] = useState([""]);
+  const { currentProfile } = useContext(ProfileContext);
 
-	const colors = useTheme().palette
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.post("/api/perimeter/getNetwork2Info", {
+          accessKeyId: currentProfile.accessKeyId,
+          secretAccessKey: currentProfile.secretAccessKey,
+          sessionToken: currentProfile.sessionToken,
+          policyName: "Network_Perimeter_2",
+        });
 
-	const [textSid, setTextSid] = useState('');
-	const [hasChanged, setChanged] = useState(false);
-	const [effect, setEffect] = useState('Deny')
-	const [action, setAction] = useState('')
-	const [resource, setResource] = useState('')
-	const [ipAddresses, setIpAddresses] = useState([''])
-	const [vpcIds, setVpcIds] = useState([''])
+        if (response.data.success) {
+          const data = response.data;
+          setPolicyName(data.policyName);
+          setTextSid(data.sid);
+          setEffect(data.effect);
+          setAction(data.action);
+          setResources(data.resources);
+          setSourceIps(data.sourceIps);
+          setSourceVpcs(data.sourceVpcs);
+          setChanged(false);
+        } else {
+          console.error("Failed to fetch policy data:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching policy data:", error);
+      }
+    };
 
+    if (currentProfile) {
+      fetchData();
+    }
+  }, [currentProfile]);
 
-	const handleChangeSid = (event) => {
-		setTextSid(event.target.value);
-	};
+  const handleChangeSid = (event) => {
+    setTextSid(event.target.value);
+    setChanged(true);
+  };
 
-	const MyDivider = () => {
-		return(
-			<div style={{width: '100%', maxWidth: 500, background: '#000000'}}>
-				<Divider sx={{ thickness: 2}} color={'#000000'} flexItem />
-			</div>
-		)
-	}
+  const handleEffectChange = (event, newValue) => {
+    setEffect(newValue);
+    setChanged(true);
+  };
 
-	return (
-		<div
-			style={{
-				padding: 15,
-				marginBottom: 100,
-				rowGap: 30,
-				minHeight: '100%',
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center',
-				flexDirection: 'column',
-				//background: '#489199'
-			}}
-		>
-			<Typography variant={'h6'}>
-				Modify your perimeter policy here
-			</Typography>
-			<CastleIcon sx={{width: 100, height: 100}} />
+  const handleActionChange = (event, newValue) => {
+    setAction(newValue);
+    setChanged(true);
+  };
 
-			<TextField
-				sx={{
-					width: 300
-				}}
-				label="Policy Name (Sid)"
-				variant="outlined"
-				value={textSid}
-				onChange={handleChangeSid}
-			/>
+  const handleResourceChange = (event, newValue) => {
+    setResources(newValue);
+    setChanged(true);
+  };
 
-			<MyDivider />
+  const handleSavePolicy = async () => {
+    try {
+      const { accessKeyId, secretAccessKey, sessionToken } = currentProfile;
+      const response = await axios.post("/api/perimeter/modifyNetwork2", {
+        accessKeyId,
+        secretAccessKey,
+        sessionToken,
+        policyName,
+        effect,
+        action,
+        resources,
+        sourceIps,
+        sourceVpcs,
+      });
 
-			<Typography>
-				Effect on your actions:
-			</Typography>
-			<Autocomplete
-				options={['Deny','Allow']}
-				sx={{ width: 300 }}
-				renderInput={(params) => <TextField value={effect} {...params} label="Effect" />}
-			/>
+      console.log(response.data);
 
-			<MyDivider />
+      if (response.data.success) {
+        console.log("Policy updated successfully");
+        setChanged(false);
+      } else {
+        console.error("Failed to update policy");
+      }
+    } catch (error) {
+      console.error("Error updating policy:", error);
+    }
+  };
 
-			<Typography>
-				Actions watched:
-			</Typography>
-			<Autocomplete
-				options={['*']}
-				sx={{ width: 300 }}
-				renderInput={(params) => <TextField value={action} {...params} label="Set Action" />}
-			/>
+  const MyDivider = () => (
+    <div style={{ width: "100%", maxWidth: 500, background: "#000000" }}>
+      <Divider sx={{ thickness: 2 }} color={"#000000"} flexItem />
+    </div>
+  );
 
-			<MyDivider />
+  return (
+    <div
+      style={{
+        padding: 15,
+        marginBottom: 100,
+        rowGap: 30,
+        minHeight: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+      }}
+    >
+      <Typography variant={"h6"}>
+        Modify your perimeter policy (RCP v2) here
+      </Typography>
+      <CastleIcon sx={{ width: 100, height: 100 }} />
 
-			<Typography>
-				Resources protected:
-			</Typography>
-			<Autocomplete
-				options={['S3 Buckets', '*']}
-				sx={{ width: 300 }}
-				renderInput={(params) => <TextField value={resource} {...params} label="Set Resource" />}
-			/>
+      <TextField
+        sx={{ width: 300 }}
+        label="Policy Name (Sid)"
+        variant="outlined"
+        value={textSid}
+        onChange={handleChangeSid}
+      />
 
-			<MyDivider />
+      <MyDivider />
 
-			<Typography>
-				Allowed IP Addresses:
-			</Typography>
-			<DynamicTextFieldList setValues={setIpAddresses} values={ipAddresses} textBoxLabels={'IP Address'} />
+      <Typography>Effect on your actions:</Typography>
+      <Autocomplete
+        value={effect}
+        onChange={handleEffectChange}
+        options={["Deny"]}
+        sx={{ width: 300 }}
+        renderInput={(params) => <TextField {...params} label="Effect" />}
+      />
 
-			<MyDivider />
+      <MyDivider />
 
-			<Typography>
-				Allowed VPCs:
-			</Typography>
-			<DynamicTextFieldList setValues={setVpcIds} values={vpcIds} textBoxLabels={'VPC'} />
+      <Typography>Actions watched:</Typography>
+      <Autocomplete
+        multiple
+        value={action}
+        onChange={handleActionChange}
+        options={["*"]}
+        sx={{ width: 300 }}
+        renderInput={(params) => <TextField {...params} label="Set Action" />}
+      />
 
-			<Fab
-				variant="extended"
-				color={'secondary'}
-				disabled={hasChanged}
-				sx={{
-					position: 'fixed',
-					bottom: 50,
-					right: 50,
-				}}
-			>
-				<PublishIcon sx={{ mr: 1 }} />
-				Save Policy
-			</Fab>
-		</div>
-	);
+      <MyDivider />
+
+      <Typography>Resources protected:</Typography>
+      <Autocomplete
+        multiple
+        value={resources}
+        onChange={handleResourceChange}
+        options={["*"]}
+        sx={{ width: 300 }}
+        renderInput={(params) => <TextField {...params} label="Set Resource" />}
+      />
+
+      <MyDivider />
+
+      <Typography>Allowed IP Addresses:</Typography>
+      <DynamicTextFieldList
+        setValues={setSourceIps}
+        values={sourceIps}
+        textBoxLabels={"IP Address"}
+      />
+
+      <MyDivider />
+
+      <Typography>Allowed VPCs:</Typography>
+      <DynamicTextFieldList
+        setValues={setSourceVpcs}
+        values={sourceVpcs}
+        textBoxLabels={"VPC"}
+      />
+
+      <Fab
+        variant="extended"
+        color={"secondary"}
+        onClick={handleSavePolicy}
+        sx={{
+          position: "fixed",
+          bottom: 50,
+          right: 50,
+        }}
+      >
+        <PublishIcon sx={{ mr: 1 }} />
+        Save Policy
+      </Fab>
+    </div>
+  );
 }
