@@ -1,6 +1,6 @@
 import {useContext, useEffect, useState} from "react"
 import axios from "axios"
-import { Link } from "react-router-dom"
+import {useLocation } from "react-router-dom"
 import Button from "@mui/material/Button"
 import IconButton from "@mui/material/IconButton"
 import DeleteIcon from "@mui/icons-material/Delete"
@@ -20,6 +20,9 @@ import { Stack } from "@mui/material"
 import ProfileContext from "../logic/profileLogic"
 
 function ResourcePage() {
+    const location = useLocation()
+    const { state } = location
+    const bucketName = state?.bucketName
     const [anchorEl, setAnchorEl] = useState(null)
     const [resources, setResources] = useState([])
     const [loading, setLoading] = useState(true)
@@ -49,7 +52,7 @@ function ResourcePage() {
                 accessKeyId: currentProfile.accessKeyId,
                 secretAccessKey: currentProfile.secretAccessKey,
                 sessionToken: currentProfile.sessionToken,
-                bucketName: "puppy-pics-s3",
+                bucketName: bucketName,
                 filePath: filePath,
             })
 
@@ -61,11 +64,11 @@ function ResourcePage() {
             setLoading(false)
         }
     }
-    const fetchResources = async () => {
+    const fetchResources = async (bucketName) => {
         setLoading(true)
         setError(null)
         //test
-
+        console.log("BucketName:",bucketName)
         console.log("AK:",currentProfile.accessKeyId)
         console.log("SAK:",currentProfile.secretAccessKey)
         console.log("ST:",currentProfile.sessionToken)
@@ -74,7 +77,7 @@ function ResourcePage() {
                 accessKeyId: currentProfile.accessKeyId,
                 secretAccessKey: currentProfile.secretAccessKey,
                 sessionToken: currentProfile.sessionToken,
-                bucketName: "puppy-pics-s3",
+                bucketName: bucketName,
             })
 
             setResources(response.data.resources || [])
@@ -87,17 +90,22 @@ function ResourcePage() {
     };
 
     useEffect(() => {
-        fetchResources()
+        if (bucketName) {
+            fetchResources(bucketName);
+        } else {
+            console.error("Bucket name is missing.");
+        }
 
-        return () => {
+        return () => { //Cleanup Function
             resources.forEach(resource => {
                 if (resource.type === "image" && resource.data) {
-                    const blob = new Blob([resource.data], { type: resource.contentType })
-                    URL.revokeObjectURL(URL.createObjectURL(blob))
+                    const blob = new Blob([resource.data], { type: resource.contentType });
+                    URL.revokeObjectURL(URL.createObjectURL(blob));
                 }
             });
         };
-    }, [])
+
+    }, [bucketName, currentProfile]); //bucketName added
 
     if (loading) {
         return <div>Loading resources...</div>

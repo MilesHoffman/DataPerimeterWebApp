@@ -118,8 +118,8 @@ const Homepage = () => {
     fetchComplianceStatus();
   }, [profiles, currentProfile]);
 
-  const handleProfileClick = (account) => {
-    navigate("/resourcePage", { state: { account: account.profile } });
+  const handleProfileClick = (account, bucketName) => {
+    navigate("/resourcePage", { state: { account: account.profile, bucketName: bucketName } });
   };
 
   const handleRefresh = () => {
@@ -180,7 +180,7 @@ const Homepage = () => {
                   <Grid item xs={12} sm={6} md={4} key={i}>
                     <DashboardCard
                       status={profileCompliance[account.name]}
-                      onClick={() => handleProfileClick(account)}
+                      onClick={() => handleProfileClick(account,resource.name)}
                     >
                       <Typography variant="h6">
                         {profileCompliance[account.name] === "compliant" ? "✔" : "✖"} {resource.name}
