@@ -118,7 +118,7 @@ function ResourcePage() {
     return (
         <div>
             <Stack direction="row" alignItems="center" spacing={1}>
-                <h1>Name of resource</h1>
+                <h1>{bucketName}</h1>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={handleAdd}>
                     Add
                 </Button>
