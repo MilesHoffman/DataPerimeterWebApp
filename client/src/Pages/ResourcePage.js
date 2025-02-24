@@ -29,8 +29,11 @@ function ResourcePage() {
     const [error, setError] = useState(null)
     const open = Boolean(anchorEl)
     const { currentProfile } = useContext(ProfileContext)
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget)
+    const [selectedResourceName, setSelectedResourceName] = useState(null);
+
+    const handleClick = (event, resourceName) => {
+        setAnchorEl(event.currentTarget);
+        setSelectedResourceName(resourceName)
     };
 
     const handleClose = () => {
@@ -63,6 +66,29 @@ function ResourcePage() {
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleDelete = async (objectKey) => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await axios.post("http://localhost:5000/api/resource/delete", {
+                accessKeyId: currentProfile.accessKeyId,
+                secretAccessKey: currentProfile.secretAccessKey,
+                sessionToken: currentProfile.sessionToken,
+                bucketName: bucketName,
+                objectKey: objectKey,
+            })
+
+            setResources(response.data.resources || [])
+        } catch (err) {
+            setError(err)
+            console.error("Error Removing resource:", err)
+        } finally {
+            setLoading(false)
+        }
+
     }
     const fetchResources = async (bucketName) => {
         setLoading(true)
@@ -100,7 +126,7 @@ function ResourcePage() {
             resources.forEach(resource => {
                 if (resource.type === "image" && resource.data) {
                     const blob = new Blob([resource.data], { type: resource.contentType });
-                    URL.revokeObjectURL(URL.createObjectURL(blob));
+                    URL.revokeObjectURL(URL.createObjectURL(blob))
                 }
             });
         };
@@ -177,7 +203,7 @@ function ResourcePage() {
                                     aria-controls={open? "long-menu": undefined}
                                     aria-expanded={open? "true": undefined}
                                     aria-haspopup="true"
-                                    onClick={handleClick}
+                                    onClick={(event) => handleClick(event, resource.name)}
                                 >
                                     <MoreVertIcon />
                                 </IconButton>
@@ -198,7 +224,7 @@ function ResourcePage() {
                                         Modify
                                     </MenuItem>
                                     <MenuItem
-                                        onClick={handleClose}
+                                        onClick={() => handleDelete(selectedResourceName)}
                                         variant="contained"
                                         startIcon={<DeleteIcon />}
                                     >
