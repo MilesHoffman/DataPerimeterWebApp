@@ -7,7 +7,6 @@ import ProfileContext from "../logic/profileLogic";
 
 const DashboardContainer = styled(Box)({
   padding: "20px",
-  marginTop: "64px",
 });
 
 const StatusBadge = styled(Box)(({ status }) => ({
@@ -144,9 +143,6 @@ const Homepage = () => {
 
   return (
     <DashboardContainer>
-      <Typography variant="h4" gutterBottom>
-        Dashboard
-      </Typography>
 
       <Box display="flex" gap={2} marginBottom={2}>
         <StatusBadge status="compliant">{compliant} Profiles Compliant</StatusBadge>
@@ -172,8 +168,8 @@ const Homepage = () => {
           .sort((a, b) => (a.name === currentProfile?.name ? -1 : 1)) // Sort current profile to top
           .map((account, index) => (
             <Box key={index} sx={{ marginTop: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: account.name === currentProfile?.name ? "bold" : "normal" }}>
-                {account.name} {profileCompliance[account.name] ? `(${profileCompliance[account.name]})` : ""}
+              <Typography variant="h5" sx={{ fontWeight: account.name === currentProfile?.name ? "bold" : "normal" }}>
+                {account.name}
               </Typography>
               <Grid container spacing={2}>
                 {account.resources.map((resource, i) => (
