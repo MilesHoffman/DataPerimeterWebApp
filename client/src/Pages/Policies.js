@@ -4,6 +4,8 @@ import {useContext, useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
 import ProfileContext from "../logic/profileLogic";
+import {SnackAlert} from "../components/SnackAlert";
+import {LoadingSpinner} from "../components/LoadingSpinner";
 
 
 
@@ -22,11 +24,30 @@ const ControlWidget = ({
 	const [active, setActive] = useState(false)
 	const policyName = title.replace(/ /g, '_');
 	const {currentProfile} = useContext(ProfileContext)
+	const [open, setOpen] = useState(false)
+	const [message, setMessage] = useState('')
+	const [severity, setSeverity] = useState('')
+	const [loading, setLoading] = useState(false)
 
+	// opens the snack
+	const handleSnackOpen = (message, severity) => {
+		setMessage(message)
+		setSeverity(severity)
+		setOpen(true)
+	}
+
+	// Closes the snack
+	const handleClose = () => {
+		setOpen(false)
+	}
+
+	// toggles policy attachment
 	const attachmentHandler = async () => {
+		setLoading(true)
 
 		if(!currentProfile){
-			//TODO put a snack here
+			handleSnackOpen('Please login', 'warning')
+			setLoading(false)
 			console.log('Error, no profile')
 			return
 		}
@@ -41,9 +62,16 @@ const ControlWidget = ({
 		})
 		const success = response.data.success
 
-		//todo put a snack when the user doesn't have perimission
-
-		setActive(success ? !active : active)
+		if(!success){
+			handleSnackOpen('Profile has invalid permissions', 'error')
+			setActive(success ? !active : active)
+			setLoading(false)
+		}
+		else{
+			setActive(success ? !active : active)
+			setLoading(false)
+			handleSnackOpen(`${policyName} is now ${active ? 'detached' : 'attached'}`, 'success')
+		}
 	}
 
 	useEffect(() => {
@@ -117,9 +145,14 @@ const ControlWidget = ({
 						Edit Policy
 					</Button>
 				</div>
-
-
 			</Paper>
+
+			{
+				loading && (
+					<LoadingSpinner />
+				)
+			}
+			<SnackAlert open={open} severity={severity} handleClose={handleClose} message={message} />
 		</div>
 	)
 }
@@ -166,6 +199,8 @@ export default function PolicyPage() {
 			<ControlWidget
 				title={'Resource Perimeter 2'}
 			/>
+
+
 		</div>
 	)
 }

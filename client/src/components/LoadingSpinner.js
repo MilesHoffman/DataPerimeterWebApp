@@ -8,13 +8,15 @@ export function LoadingSpinner(){
 			size={72}
 			variant={'indeterminate'}
 			sx={{
-				color: '#ff9900',
 				position: 'absolute',
 				top: '50%',
 				left: '50%',
 				marginTop: '-12px',
 				marginLeft: '-12px',
+				background: '#232f3e',
+				borderRadius: 90
 			}}
+			color={'secondary'}
 		/>
 	)
 }

@@ -54,7 +54,7 @@ function App() {
       case "/":
         return "Homepage";
       case "/resourcePage":
-        return "Resource Page";
+        return "Resource:";
       case "/login":
         return "Login";
       case "/policies":
@@ -220,10 +220,8 @@ function App() {
                     </div>
 
                     <Tab sx={{fontSize: tabfontSize}} label='Home' value='/' />
-                    <Tab sx={{fontSize: tabfontSize}} label='Login' value='/login' />
-                    <Tab sx={{fontSize: tabfontSize}} label='Resource Page (temp)' value='/resourcePage' />
                     <Tab sx={{fontSize: tabfontSize}} label='Policies' value='/policies' />
-                    <Tab sx={{fontSize: tabfontSize}} label='Profiles' value='/profiles' />
+                    <Tab sx={{fontSize: tabfontSize}} label='Login' value='/login' />
                 </Tabs>
             </div>
 
@@ -233,7 +231,6 @@ function App() {
                     <Route path="/resourcePage" element={<ResourcePage />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/policies" element={<Policies />} />
-                    <Route path="/profiles" element={<ProfileList />} />
                     <Route path="/networkControlOne" element={<NetworkControlOne />} />
                     <Route path="/networkControlTwo" element={<NetworkControlTwo />} />
                 </Routes>
