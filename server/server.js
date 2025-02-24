@@ -218,6 +218,7 @@ app.post("/api/perimeter/attach", async (req, res) => {
       policyName,
       policyType,
     } = req.body;
+
     const result = await togglePolicy(
       accessKeyId,
       secretAccessKey,

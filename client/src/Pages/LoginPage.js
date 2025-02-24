@@ -4,10 +4,12 @@ import {
 	Button,
 	TextField,
 	Typography,
-	Autocomplete,
+	Autocomplete, Alert, Snackbar,
 } from "@mui/material";
 import axios from "axios"; // Using Axios for API calls
 import ProfileContext from "../logic/profileLogic";
+import {SnackAlert} from "../components/SnackAlert";
+import {LoadingSpinner} from "../components/LoadingSpinner";
 
 
 
@@ -61,9 +63,29 @@ function LoginPage() {
 	const [userPoolId, setUserPoolId] = useState('')
 	const [clientId, setClientId] = useState('')
 	const [presetChange, setPresetChange] = useState('')
+	const [open, setOpen] = useState(false)
+	const [severity, setSeverity] = useState('success')
+	const [message, setMessage] = useState('NaN')
+	const [loading, setLoading] = useState(false)
 
 	// Get the addProfile function from our profile context
 	const {addProfile} = useContext(ProfileContext);
+
+	// Opens snackbar
+	const handleOpen = (message, severity) => {
+		setSeverity(severity)
+		setMessage(message)
+		setOpen(true)
+	}
+
+	// Close snackbar
+	const handleClose = (event, reason) => {
+		if(reason === 'clickaway'){
+			return
+		}
+		setOpen(false)
+	}
+
 
 	const handleUserPoolChange = (event) => {
 		setUserPoolId(event.target.value);
@@ -98,6 +120,7 @@ function LoginPage() {
 	const handleLogin = async (event) => {
 		event.preventDefault();
 		setError(null);
+		setLoading(true)
 
 		try {
 			// Send POST request to our backend
@@ -131,17 +154,19 @@ function LoginPage() {
 			// Add the profile using our context function
 			addProfile(profileData);
 
-			alert("Login successful!");
+			handleOpen('Login successful', 'success')
 		} catch (err) {
 			console.error("Login failed:", err);
-			setError("Invalid username or password. Please try again.");
+			handleOpen('Login failed. Please try again.', 'error')
+		}
+		finally {
+			setLoading(false)
 		}
 	};
 
 	return (
 		<Box
 			display="flex"
-			alignItems="center"
 			justifyContent="center"
 			minHeight="100vh"
 			bgcolor="grey.100"
@@ -153,7 +178,7 @@ function LoginPage() {
 					<img
 						src="https://www.baylineins.com/wp-content/uploads/2016/09/erie-insurance-logo.png"
 						alt="Erie Insurance Logo"
-						style={{height: "100px"}}
+						style={{height: "90px"}}
 					/>
 				</Box>
 				<Typography variant="h6" gutterBottom>
@@ -189,6 +214,8 @@ function LoginPage() {
 							{error}
 						</Typography>
 					)}
+
+
 					<TextField
 						onChange={handleUserPoolChange}
 						value={userPoolId}
@@ -214,8 +241,15 @@ function LoginPage() {
 					<Button variant="contained" color="primary" type="submit">
 						Sign in
 					</Button>
-				</Box>
 
+
+					<SnackAlert open={open} severity={severity} message={message} handleClose={handleClose} />
+					{
+						loading && (
+							<LoadingSpinner />
+						)
+					}
+				</Box>
 			</Box>
 		</Box>
 	);
