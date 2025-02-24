@@ -18,6 +18,8 @@ import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
 import { Stack } from "@mui/material"
 import ProfileContext from "../logic/profileLogic"
+import {LoadingSpinner} from "../components/LoadingSpinner";
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 function ResourcePage() {
     const location = useLocation()
@@ -39,7 +41,6 @@ function ResourcePage() {
     const handleClose = () => {
         setAnchorEl(null)
     };
-
 
     const handleAdd = async () => {
         const filePath = prompt("Enter the full file path of the resource you want to add:")
@@ -87,9 +88,10 @@ function ResourcePage() {
             console.error("Error Removing resource:", err)
         } finally {
             setLoading(false)
+            loadPage()
         }
-
     }
+
     const fetchResources = async (bucketName) => {
         setLoading(true)
         setError(null)
@@ -115,7 +117,7 @@ function ResourcePage() {
         }
     };
 
-    useEffect(() => {
+    const loadPage = () => {
         if (bucketName) {
             fetchResources(bucketName);
         } else {
@@ -130,11 +132,16 @@ function ResourcePage() {
                 }
             });
         };
+    }
 
+    useEffect(() => {
+        loadPage()
     }, [bucketName, currentProfile]); //bucketName added
 
     if (loading) {
-        return <div>Loading resources...</div>
+        return(
+            <LoadingSpinner />
+        )
     }
 
     if (error) {
@@ -142,11 +149,18 @@ function ResourcePage() {
     }
 
     return (
-        <div>
-            <Stack direction="row" alignItems="center" spacing={1}>
-                <h1>{bucketName}</h1>
+        <div style={{
+            marginTop: '12px',
+            paddingLeft: '12px',
+            paddingRight: '12px'
+        }}>
+            <Stack direction="row" alignItems="center" spacing={3} marginBottom={'24px'} marginTop={'12px'} >
+                <Typography variant={'h4'}>{bucketName}</Typography>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={handleAdd}>
-                    Add
+                    Add File
+                </Button>
+                <Button variant="contained" startIcon={<RefreshIcon />} onClick={loadPage}>
+                    Refresh
                 </Button>
             </Stack>
 
@@ -221,7 +235,7 @@ function ResourcePage() {
                                         variant="contained"
                                         startIcon={<EditIcon />}
                                     >
-                                        Modify
+                                        Send
                                     </MenuItem>
                                     <MenuItem
                                         onClick={() => handleDelete(selectedResourceName)}
@@ -230,7 +244,6 @@ function ResourcePage() {
                                     >
                                         Delete
                                     </MenuItem>
-                                    <MenuItem onClick={handleClose}>Option 3</MenuItem>
                                 </Menu>
                             </CardContent>
                         </Card>

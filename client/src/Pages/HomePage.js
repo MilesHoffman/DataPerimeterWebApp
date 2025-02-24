@@ -4,6 +4,7 @@ import { Box, Typography, Grid, Paper, CircularProgress, Button } from "@mui/mat
 import { styled } from "@mui/system";
 import { useNavigate } from "react-router-dom";
 import ProfileContext from "../logic/profileLogic";
+import {LoadingSpinner} from "../components/LoadingSpinner";
 
 const DashboardContainer = styled(Box)({
   padding: "20px",
@@ -154,9 +155,7 @@ const Homepage = () => {
       </Button>
 
       {loading ? (
-        <Box display="flex" justifyContent="center">
-          <CircularProgress />
-        </Box>
+        <LoadingSpinner />
       ) : error ? (
         <Typography color="error">{error}</Typography>
       ) : accounts.length === 0 ? (
