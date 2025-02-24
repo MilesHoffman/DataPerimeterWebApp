@@ -12,6 +12,8 @@ import { DynamicTextFieldList } from "../../components/DynamicTextFieldList";
 import PublishIcon from "@mui/icons-material/Publish";
 import axios from "axios";
 import ProfileContext from "../../logic/profileLogic";
+import {LoadingSpinner} from "../../components/LoadingSpinner";
+import {SnackAlert} from "../../components/SnackAlert";
 
 export default function NetworkControlTwo() {
   const colors = useTheme().palette;
@@ -24,10 +26,28 @@ export default function NetworkControlTwo() {
   const [sourceIps, setSourceIps] = useState([""]);
   const [sourceVpcs, setSourceVpcs] = useState([""]);
   const { currentProfile } = useContext(ProfileContext);
+  const [open, setOpen] = useState(false)
+  const [message, setMessage] = useState('')
+  const [severity, setSeverity] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  // starts the snack alert
+  const handleSnackOpen = (message, severity) => {
+    setMessage(message)
+    setSeverity(severity)
+    setOpen(true)
+  }
+
+  // closes the snack
+  const handleClose = () => {
+    setOpen(false)
+  }
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true)
+
         const response = await axios.post("/api/perimeter/getNetwork2Info", {
           accessKeyId: currentProfile.accessKeyId,
           secretAccessKey: currentProfile.secretAccessKey,
@@ -45,11 +65,17 @@ export default function NetworkControlTwo() {
           setSourceIps(data.sourceIps);
           setSourceVpcs(data.sourceVpcs);
           setChanged(false);
+
         } else {
           console.error("Failed to fetch policy data:", response.data.message);
+          handleSnackOpen('Failed to load policy info', 'error')
         }
       } catch (error) {
+        handleSnackOpen('Failed to load policy info', 'error')
         console.error("Error fetching policy data:", error);
+      }
+      finally {
+        setLoading(false)
       }
     };
 
@@ -80,6 +106,8 @@ export default function NetworkControlTwo() {
 
   const handleSavePolicy = async () => {
     try {
+      setLoading(true)
+
       const { accessKeyId, secretAccessKey, sessionToken } = currentProfile;
       const response = await axios.post("/api/perimeter/modifyNetwork2", {
         accessKeyId,
@@ -97,12 +125,18 @@ export default function NetworkControlTwo() {
 
       if (response.data.success) {
         console.log("Policy updated successfully");
+        handleSnackOpen('Successfully modified policy', 'success')
         setChanged(false);
       } else {
+        handleSnackOpen('Failed to modified policy', 'error')
         console.error("Failed to update policy");
       }
     } catch (error) {
+      handleSnackOpen('Failed to modified policy', 'error')
       console.error("Error updating policy:", error);
+    }
+    finally {
+      setLoading(false)
     }
   };
 
@@ -204,6 +238,13 @@ export default function NetworkControlTwo() {
         <PublishIcon sx={{ mr: 1 }} />
         Save Policy
       </Fab>
+
+      {
+          loading && (
+              <LoadingSpinner />
+          )
+      }
+      <SnackAlert open={open} severity={severity} handleClose={handleClose} message={message} />
     </div>
   );
 }

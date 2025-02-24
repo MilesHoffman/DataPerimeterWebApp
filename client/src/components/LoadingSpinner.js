@@ -8,7 +8,7 @@ export function LoadingSpinner(){
 			size={72}
 			variant={'indeterminate'}
 			sx={{
-				position: 'absolute',
+				position: 'fixed',
 				top: '50%',
 				left: '50%',
 				marginTop: '-12px',
