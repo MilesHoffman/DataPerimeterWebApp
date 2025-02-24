@@ -20,6 +20,7 @@ import { Stack } from "@mui/material"
 import ProfileContext from "../logic/profileLogic"
 import {LoadingSpinner} from "../components/LoadingSpinner";
 import RefreshIcon from '@mui/icons-material/Refresh';
+import {SnackAlert} from "../components/SnackAlert";
 
 function ResourcePage() {
     const location = useLocation()
@@ -29,16 +30,34 @@ function ResourcePage() {
     const [resources, setResources] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-    const open = Boolean(anchorEl)
+    const openMenu = Boolean(anchorEl)
     const { currentProfile } = useContext(ProfileContext)
     const [selectedResourceName, setSelectedResourceName] = useState(null);
+    const [open, setOpen] = useState(false)
+    const [message, setMessage] = useState('')
+    const [severity, setSeverity] = useState('success')
+
+    // Handles closing snack
+    const handleClose = (event, reason) => {
+        if(reason === 'clickaway'){
+            return
+        }
+        setOpen(false)
+    }
+
+    // Handles opening snack
+    const handleSnackOpen = (message, severity) => {
+        setMessage(message)
+        setSeverity(severity)
+        setOpen(true)
+    }
 
     const handleClick = (event, resourceName) => {
         setAnchorEl(event.currentTarget);
         setSelectedResourceName(resourceName)
     };
 
-    const handleClose = () => {
+    const handleAnchorElClose = () => {
         setAnchorEl(null)
     };
 
@@ -61,11 +80,14 @@ function ResourcePage() {
             })
 
             setResources(response.data.resources || [])
+            handleSnackOpen('Successfully added', 'success')
         } catch (err) {
             setError(err)
+            handleSnackOpen('Failed to add', 'error')
             console.error("Error adding resource:", err)
         } finally {
             setLoading(false)
+            loadPage()
         }
     }
 
@@ -83,8 +105,10 @@ function ResourcePage() {
             })
 
             setResources(response.data.resources || [])
+            handleSnackOpen('Successfully deleted', 'success')
         } catch (err) {
             setError(err)
+            handleSnackOpen('Failed to delete', 'error')
             console.error("Error Removing resource:", err)
         } finally {
             setLoading(false)
@@ -214,8 +238,8 @@ function ResourcePage() {
                                 <IconButton
                                     aria-label="more"
                                     id="long-button"
-                                    aria-controls={open? "long-menu": undefined}
-                                    aria-expanded={open? "true": undefined}
+                                    aria-controls={openMenu? "long-menu": undefined}
+                                    aria-expanded={openMenu? "true": undefined}
                                     aria-haspopup="true"
                                     onClick={(event) => handleClick(event, resource.name)}
                                 >
@@ -227,11 +251,11 @@ function ResourcePage() {
                                         "aria-labelledby": "long-button",
                                     }}
                                     anchorEl={anchorEl}
-                                    open={open}
-                                    onClose={handleClose}
+                                    open={openMenu}
+                                    onClose={handleAnchorElClose}
                                 >
                                     <MenuItem
-                                        onClick={handleClose}
+                                        onClick={handleAnchorElClose}
                                         variant="contained"
                                         startIcon={<EditIcon />}
                                     >
@@ -250,6 +274,8 @@ function ResourcePage() {
                     </Grid>
                 ))}
             </Grid>
+
+            <SnackAlert handleClose={handleClose} open={open} message={message} severity={severity} />
         </div>
     );
 
