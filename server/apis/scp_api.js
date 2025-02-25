@@ -223,7 +223,7 @@ async function createNetworkPerimeterSCP(accessKeyId, secretAccessKey, sessionTo
 				"Resource": resources,
 				"Condition": {
 					"NotIpAddressIfExists": {
-						"aws:SourceIp": safeSourceIps
+						"aws:SourceIp": sourceIps
 					},
 					"StringNotEqualsIfExists": {
 						"aws:SourceVpc": sourceVpcs
