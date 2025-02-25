@@ -1,12 +1,25 @@
 import {useState, useEffect, useContext} from 'react'
-import {Autocomplete, Box, Button, Divider, Fab, Snackbar, TextField, Typography, useTheme} from '@mui/material'
+import {
+	Autocomplete,
+	Box,
+	Button,
+	Divider,
+	Fab,
+	IconButton,
+	Snackbar,
+	TextField,
+	Typography,
+	useTheme
+} from '@mui/material'
 import CastleIcon from '@mui/icons-material/Castle'
 import {DynamicTextFieldList} from "../../components/DynamicTextFieldList"
 import PublishIcon from '@mui/icons-material/Publish'
 import axios from 'axios'
 import ProfileContext from "../../logic/profileLogic";
 import {LoadingSpinner} from "../../components/LoadingSpinner";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import {SnackAlert} from "../../components/SnackAlert";
+import AddIcon from "@mui/icons-material/Add";
 
 export default function NetworkControlOne() {
 
@@ -25,6 +38,7 @@ export default function NetworkControlOne() {
 	const [message, setMessage] = useState('')
 	const [severity, setSeverity] = useState('')
 	const [loading, setLoading] = useState(false)
+	const [userIp, setUserIp] = useState('')
 
 	// starts the snack alert
 	const handleSnackOpen = (message, severity) => {
@@ -78,8 +92,19 @@ export default function NetworkControlOne() {
 		}
 	}
 
+	const getUserIp = async () => {
+		try {
+			const response = await axios.get('https://api.ipify.org?format=json');
+			setUserIp(response.data.ip);
+		} catch (error) {
+			console.error('Error fetching IP:', error);
+			handleSnackOpen('Failed to fetch your IP address', 'error');
+		}
+	}
+
 	useEffect(() => {
 		fetchData()
+		getUserIp();
 	}, [])
 
 	const handleChangeSid = (event) => {
@@ -218,6 +243,10 @@ export default function NetworkControlOne() {
 			/>
 
 			<MyDivider />
+
+			<Typography>
+				Your IP Address: {userIp}
+			</Typography>
 
 			<Typography>
 				Allowed IP Addresses:

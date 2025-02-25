@@ -30,6 +30,7 @@ export default function NetworkControlTwo() {
   const [message, setMessage] = useState('')
   const [severity, setSeverity] = useState('')
   const [loading, setLoading] = useState(false)
+  const [userIp, setUserIp] = useState('')
 
   // starts the snack alert
   const handleSnackOpen = (message, severity) => {
@@ -43,10 +44,22 @@ export default function NetworkControlTwo() {
     setOpen(false)
   }
 
+  const getUserIp = async () => {
+    try {
+      const response = await axios.get('https://api.ipify.org?format=json');
+      setUserIp(response.data.ip);
+    } catch (error) {
+      console.error('Error fetching IP:', error);
+      handleSnackOpen('Failed to fetch your IP address', 'error');
+    }
+  }
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true)
+        getUserIp()
 
         const response = await axios.post("/api/perimeter/getNetwork2Info", {
           accessKeyId: currentProfile.accessKeyId,
@@ -208,6 +221,10 @@ export default function NetworkControlTwo() {
       />
 
       <MyDivider />
+
+      <Typography>
+        Your IP Address: {userIp}
+      </Typography>
 
       <Typography>Allowed IP Addresses:</Typography>
       <DynamicTextFieldList

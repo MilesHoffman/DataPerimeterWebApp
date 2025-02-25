@@ -78,6 +78,7 @@ const Homepage = () => {
       } catch (err) {
         console.error(`Error fetching data for ${profile.name}:`, err);
         setError(`Failed to fetch data for ${profile.name}.`);
+        updatedAccounts.push({name: profile.name, profile, resources: []})
       }
     }
 
@@ -156,8 +157,6 @@ const Homepage = () => {
 
       {loading ? (
         <LoadingSpinner />
-      ) : error ? (
-        <Typography color="error">{error}</Typography>
       ) : accounts.length === 0 ? (
         <Typography variant="body1" color="textSecondary">
           No profiles found.
@@ -171,20 +170,27 @@ const Homepage = () => {
                 {account.name}
               </Typography>
               <Grid container spacing={2}>
-                {account.resources.map((resource, i) => (
-                  <Grid item xs={12} sm={6} md={4} key={i}>
-                    <DashboardCard
-                      status={profileCompliance[account.name]}
-                      onClick={() => handleProfileClick(account,resource.name)}
-                    >
-                      <Typography variant="h6">
-                        {profileCompliance[account.name] === "compliant" ? "✔" : "✖"} {resource.name}
+                {
+                  account.resources.length > 0 ?
+                    account.resources.map((resource, i) => (
+                    <Grid item xs={12} sm={6} md={4} key={i}>
+                      <DashboardCard
+                        status={profileCompliance[account.name]}
+                        onClick={() => handleProfileClick(account,resource.name)}
+                      >
+                        <Typography variant="h6">
+                          {profileCompliance[account.name] === "compliant" ? "✔" : "✖"} {resource.name}
+                        </Typography>
+                        <Typography variant="body2">{resource.type}</Typography>
+                        <Typography variant="body2">{resource.files} Files</Typography>
+                      </DashboardCard>
+                    </Grid>
+                  ))
+                      :
+                      <Typography color={'red'} marginTop={'20px'} marginLeft={'40px'}>
+                        Unable to retrieve resource information.
                       </Typography>
-                      <Typography variant="body2">{resource.type}</Typography>
-                      <Typography variant="body2">{resource.files} Files</Typography>
-                    </DashboardCard>
-                  </Grid>
-                ))}
+                }
               </Grid>
             </Box>
           ))

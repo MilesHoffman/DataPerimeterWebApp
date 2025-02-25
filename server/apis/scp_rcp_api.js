@@ -225,10 +225,13 @@ async function isPolicyAttached(accessKeyId, secretAccessKey, sessionToken, poli
 		const attachedPolicies = await listPoliciesForTarget(rootId, client, policyType);
 
 		// Check if the target policy is in the list of attached policies
-		return attachedPolicies.some(policy => policy.Id === targetPolicyId);
+		return {
+			attached: attachedPolicies.some(policy => policy.Id === targetPolicyId),
+			error: false
+		}
 	} catch (error) {
 		console.error("Error: In checking if policy is attached:", error);
-		return false
+		return {attached: false, error: true}
 	}
 }
 

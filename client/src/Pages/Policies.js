@@ -77,8 +77,10 @@ const ControlWidget = ({
 	useEffect(() => {
 		const check = async () => {
 
+			setLoading(true)
+
 			if(!currentProfile){
-				//todo put snack here
+				handleSnackOpen("Please login to the management account", 'error')
 				console.log('Error, no profile')
 				return
 			}
@@ -93,9 +95,11 @@ const ControlWidget = ({
 
 			setActive(response.data.attached)
 			if(response.data.error){
+				handleSnackOpen("Please login to the management account", 'error')
 				console.log('Error...There was an unhandled error in policies.js for checking the policy')
-				// TODO Put a snack here
 			}
+
+			setLoading(false)
 		}
 
 		check()

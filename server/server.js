@@ -276,7 +276,8 @@ app.post("/api/perimeter/check", async (req, res) => {
 			policyName,
 			policyType
 		);
-		res.json({attached: result, error: false});
+		res.json({attached: result.attached, error: result.error});
+
 	} catch (error) {
 		console.error("Error in checking if policy is attached:", error);
 		res.json({attached: false, error: true});
