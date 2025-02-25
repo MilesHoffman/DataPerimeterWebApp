@@ -21,6 +21,8 @@ import ProfileContext from "../logic/profileLogic"
 import {LoadingSpinner} from "../components/LoadingSpinner";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import {SnackAlert} from "../components/SnackAlert";
+import SendIcon from '@mui/icons-material/Send';
+import {flushSync} from "react-dom";
 
 function ResourcePage() {
     const location = useLocation()
@@ -32,10 +34,10 @@ function ResourcePage() {
     const [error, setError] = useState(null)
     const openMenu = Boolean(anchorEl)
     const { currentProfile } = useContext(ProfileContext)
-    const [selectedResourceName, setSelectedResourceName] = useState(null);
     const [open, setOpen] = useState(false)
     const [message, setMessage] = useState('')
     const [severity, setSeverity] = useState('success')
+    const [selectedResource, setSelectedResource] = useState(null)
 
     // Handles closing snack
     const handleClose = (event, reason) => {
@@ -52,9 +54,9 @@ function ResourcePage() {
         setOpen(true)
     }
 
-    const handleClick = (event, resourceName) => {
-        setAnchorEl(event.currentTarget);
-        setSelectedResourceName(resourceName)
+    const handleClick = (event, resource) => {
+        setAnchorEl(event.currentTarget)
+        setSelectedResource(resource)
     };
 
     const handleAnchorElClose = () => {
@@ -79,7 +81,7 @@ function ResourcePage() {
                 filePath: filePath,
             })
 
-            setResources(response.data.resources || [])
+            //setResources(response.data.resources || []) redundant?
             handleSnackOpen('Successfully added', 'success')
         } catch (err) {
             setError(err)
@@ -91,20 +93,21 @@ function ResourcePage() {
         }
     }
 
-    const handleDelete = async (objectKey) => {
+    const handleDelete = async () => {
         setLoading(true);
         setError(null);
-
         try {
+            console.log(`deleting resource ${selectedResource.name}`)
+
             const response = await axios.post("http://localhost:5000/api/resource/delete", {
                 accessKeyId: currentProfile.accessKeyId,
                 secretAccessKey: currentProfile.secretAccessKey,
                 sessionToken: currentProfile.sessionToken,
                 bucketName: bucketName,
-                objectKey: objectKey,
+                objectKey: selectedResource.name,
             })
 
-            setResources(response.data.resources || [])
+            //setResources(response.data.resources || []) redundant?
             handleSnackOpen('Successfully deleted', 'success')
         } catch (err) {
             setError(err)
@@ -112,6 +115,7 @@ function ResourcePage() {
             console.error("Error Removing resource:", err)
         } finally {
             setLoading(false)
+            handleAnchorElClose()
             loadPage()
         }
     }
@@ -131,7 +135,6 @@ function ResourcePage() {
                 sessionToken: currentProfile.sessionToken,
                 bucketName: bucketName,
             })
-
             setResources(response.data.resources || [])
         } catch (err) {
             setError(err)
@@ -141,21 +144,47 @@ function ResourcePage() {
         }
     };
 
+    const sendResource = async () => {
+        try{
+            console.log("Client sending resource: ", selectedResource.name)
+            const sendBucket = prompt('Enter the name of the bucket you are sending to: ')
+
+            setLoading(true)
+
+            const res = await axios.post('http://localhost:5000/api/resources/send', {
+                accessKeyId: currentProfile.accessKeyId,
+                secretAccessKey: currentProfile.secretAccessKey,
+                sessionToken: currentProfile.sessionToken,
+                sourceBucketName: bucketName,
+                destinationBucketName: sendBucket,
+                objectName: selectedResource.name,
+                objectType: selectedResource.type
+            })
+            const success = res.data.success
+
+            if(success){
+                handleSnackOpen('Successfully sent the file', 'success')
+            }
+            else{
+                handleSnackOpen('Failed to send the file', 'error')
+            }
+        }
+        catch (error){
+            console.log('Error in sendResource: ', error)
+            handleSnackOpen('Error: Failed to send the file', 'error')
+        }
+        finally {
+            setLoading(false)
+            handleAnchorElClose()
+        }
+    }
+
     const loadPage = () => {
         if (bucketName) {
             fetchResources(bucketName);
         } else {
             console.error("Bucket name is missing.");
         }
-
-        return () => { //Cleanup Function
-            resources.forEach(resource => {
-                if (resource.type === "image" && resource.data) {
-                    const blob = new Blob([resource.data], { type: resource.contentType });
-                    URL.revokeObjectURL(URL.createObjectURL(blob))
-                }
-            });
-        };
     }
 
     useEffect(() => {
@@ -241,7 +270,7 @@ function ResourcePage() {
                                     aria-controls={openMenu? "long-menu": undefined}
                                     aria-expanded={openMenu? "true": undefined}
                                     aria-haspopup="true"
-                                    onClick={(event) => handleClick(event, resource.name)}
+                                    onClick={(event) => handleClick(event, resource)}
                                 >
                                     <MoreVertIcon />
                                 </IconButton>
@@ -255,14 +284,14 @@ function ResourcePage() {
                                     onClose={handleAnchorElClose}
                                 >
                                     <MenuItem
-                                        onClick={handleAnchorElClose}
+                                        onClick={() => sendResource(resource.name, resource.type)}
                                         variant="contained"
                                         startIcon={<EditIcon />}
                                     >
                                         Send
                                     </MenuItem>
                                     <MenuItem
-                                        onClick={() => handleDelete(selectedResourceName)}
+                                        onClick={() => handleDelete(resource.name)}
                                         variant="contained"
                                         startIcon={<DeleteIcon />}
                                     >
