@@ -61,6 +61,10 @@ function App() {
         return "Policies";
       case "/profiles":
         return "Profiles";
+    case "/networkControlOne":
+        return "Edit Network Perimeter 1";
+    case "/networkControlTwo":
+        return "Edit Network Perimeter 2";
       default:
         return "Data Perimeter App";
     }

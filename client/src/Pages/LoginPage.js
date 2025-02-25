@@ -24,7 +24,7 @@ const presets = {
 		clientId: '6jfl27ldku8gi24ch3q67fmkkc',
 		userPoolId: 'us-east-2_9cD9h80bH'
 	},
-	canine: {
+	manager: {
 		identityPoolId: 'us-east-2:6d959f68-b088-47d2-8eef-a452fa6a314a',
 		clientId: '1n2d7p9cp163h2pij9tndiqueh',
 		userPoolId: 'us-east-2_xiDtHQ1Wp'
@@ -39,8 +39,8 @@ const presets = {
 const presetParser = (preset) => {
 
 	switch (preset){
-		case 'Canine LLC':
-			return presets.canine;
+		case 'Manager':
+			return presets.manager;
 		case 'Dog LLC':
 			return presets.dog;
 		case 'Puppy LLC':
@@ -234,7 +234,7 @@ function LoginPage() {
 					<Autocomplete
 						onChange={handlePresetChange}
 						value={presetChange}
-						options={['Canine LLC', 'Dog LLC', 'Puppy LLC', 'Competitor LLC', 'None']}
+						options={['Manager', 'Dog LLC', 'Puppy LLC', 'Competitor LLC', 'None']}
 						renderInput={(params) => <TextField {...params} label="Select Preset" />}
 					/>
 

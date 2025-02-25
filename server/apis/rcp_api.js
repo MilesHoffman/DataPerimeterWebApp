@@ -102,6 +102,12 @@ async function createNetworkPerimeterRCP(
   sourceIps,
   sourceVpcs
 ) {
+
+  // Safety Check
+  if(action.includes("*")){
+    return false
+  }
+
   const policyContent = JSON.stringify({
     Version: "2012-10-17",
     Statement: [

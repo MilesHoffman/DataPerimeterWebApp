@@ -198,7 +198,7 @@ export default function NetworkControlOne() {
 				multiple
 				value={action}
 				onChange={handleActionChange}
-				options={['*']}
+				options={['s3:*']}
 				sx={{ width: 300 }}
 				renderInput={(params) => <TextField  {...params} label="Set Action" />}
 			/>

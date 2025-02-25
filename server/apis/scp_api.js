@@ -207,6 +207,12 @@ async function createSCP(accessKeyId, secretAccessKey, sessionToken, policyName,
  */
 async function createNetworkPerimeterSCP(accessKeyId, secretAccessKey, sessionToken, policyName, effect, action, resources, sourceIps, sourceVpcs) {
 
+
+	// Safety Check
+	if(action.includes("*")){
+		return false
+	}
+
 	const policyContent = JSON.stringify({
 		"Version": "2012-10-17",
 		"Statement": [
@@ -217,7 +223,7 @@ async function createNetworkPerimeterSCP(accessKeyId, secretAccessKey, sessionTo
 				"Resource": resources,
 				"Condition": {
 					"NotIpAddressIfExists": {
-						"aws:SourceIp": sourceIps
+						"aws:SourceIp": safeSourceIps
 					},
 					"StringNotEqualsIfExists": {
 						"aws:SourceVpc": sourceVpcs
