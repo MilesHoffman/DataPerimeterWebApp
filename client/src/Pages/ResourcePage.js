@@ -233,6 +233,25 @@ function ResourcePage() {
         return <div>Error: {error.message}</div>
     }
 
+    if(resources.length === 0){
+        return (
+            <>
+                <Stack direction="row" alignItems="center" spacing={3} marginBottom={'24px'} marginTop={'12px'} >
+                    <Typography variant={'h4'}>{bucketName}</Typography>
+                    <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddDialogOpen}>
+                        Add File
+                    </Button>
+                    <Button variant="contained" startIcon={<RefreshIcon />} onClick={loadPage}>
+                        Refresh
+                    </Button>
+                </Stack>
+                <Typography color={'red'} variant={'h5'}>
+                    Unable to retrieve resources
+                </Typography>
+            </>
+        )
+    }
+
     return (
         <div style={{
             marginTop: '12px',
