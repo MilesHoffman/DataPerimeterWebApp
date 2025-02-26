@@ -33,7 +33,7 @@ function ResourcePage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const openMenu = Boolean(anchorEl)
-    const { currentProfile } = useContext(ProfileContext)
+    const { currentProfile, profiles } = useContext(ProfileContext)
     const [open, setOpen] = useState(false)
     const [message, setMessage] = useState('')
     const [severity, setSeverity] = useState('success')
@@ -221,6 +221,7 @@ function ResourcePage() {
 
     useEffect(() => {
         loadPage()
+        console.log("profiles is: ", profiles)
     }, [bucketName, currentProfile]); //bucketName added
 
     if (loading) {
@@ -233,7 +234,12 @@ function ResourcePage() {
         return <div>Error: {error.message}</div>
     }
 
-    if(resources.length === 0){
+    // If Current profile and bucket owner profile see 0 files
+    if(
+        resources.length === 0
+        &&
+        currentProfile?.resources?.find((bucket) => bucketName === bucket.name)?.files === 0
+    ){
         return (
             <>
                 <Stack direction="row" alignItems="center" spacing={3} marginBottom={'24px'} marginTop={'12px'} >
@@ -245,8 +251,32 @@ function ResourcePage() {
                         Refresh
                     </Button>
                 </Stack>
-                <Typography color={'red'} variant={'h5'}>
-                    Unable to retrieve resources
+                <Typography color={'textPrimary'} variant={'h5'}>
+                    No files found in the resource
+                </Typography>
+            </>
+        )
+    }
+
+    // If Current profile sees 0 and bucket owner profile see > 0 files
+    if(
+        resources.length === 0
+        &&
+        profiles?.some(profile => profile?.resources?.some(bucket => bucket.name === bucketName && bucket.files > 0))
+    ){
+        return (
+            <>
+                <Stack direction="row" alignItems="center" spacing={3} marginBottom={'24px'} marginTop={'12px'} >
+                    <Typography variant={'h4'}>{bucketName}</Typography>
+                    <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddDialogOpen}>
+                        Add File
+                    </Button>
+                    <Button variant="contained" startIcon={<RefreshIcon />} onClick={loadPage}>
+                        Refresh
+                    </Button>
+                </Stack>
+                <Typography color={'error'} variant={'h5'}>
+                    Access Denied
                 </Typography>
             </>
         )

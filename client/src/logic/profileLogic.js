@@ -58,6 +58,16 @@ export const ProfileProvider = ({ children }) => {
     }
   };
 
+    // Update the profile's resource
+    const setResources = (profileName, resources) => {
+        profiles.find((profile) => {
+            if(profile.name === profileName){
+                profile.resources = resources
+            }
+        })
+    }
+
+
   return (
       <ProfileContext.Provider
           value={{
@@ -66,6 +76,7 @@ export const ProfileProvider = ({ children }) => {
             removeProfile,
             setCurrentProfile,
             removeAllProfiles,
+            setResources,
             currentProfile,
           }}
       >

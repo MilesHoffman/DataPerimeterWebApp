@@ -38,7 +38,7 @@ const DashboardCard = styled(Paper)(({status}) => ({
 
 const Homepage = () => {
 	const navigate = useNavigate()
-	const {profiles, currentProfile} = useContext(ProfileContext)
+	const {profiles, currentProfile, setResources} = useContext(ProfileContext)
 	const [accounts, setAccounts] = useState([])
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState(null)
@@ -82,6 +82,11 @@ const Homepage = () => {
 		try {
 			const updatedAccounts = await Promise.all(accountsPromises)
 			setAccounts(updatedAccounts)
+
+			updatedAccounts.map((account) => {
+				setResources(account.name, account.resources)
+			})
+
 			console.log("updated the accounts: ", updatedAccounts)
 		} catch (err) {
 			console.error("Error in Promise.all:", err)
@@ -171,6 +176,8 @@ const Homepage = () => {
 
 	const handleRefresh = () => {
 		fetchProfileData();
+
+		console.log(profiles)
 	};
 
 	const countStatuses = () => {
