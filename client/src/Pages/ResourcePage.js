@@ -301,12 +301,11 @@ function ResourcePage() {
             <Grid container spacing={2}>
                 {resources.map((resource, index) => (
 
-                    <Grid item xs={12} sm={6} md={3} lg={3} key={index}>
-                        <Card sx={{ height: 350, display: "flex", flexDirection: "column" }}>
+                    <Grid item xs={12} sm={6} md={4} lg={2.35} key={index}>
+                        <Card sx={{ height: 300, display: "flex", flexDirection: "column" }}>
                             <CardActionArea sx={{ flex: 1, display: "flex" }}>
                                 {resource.type === "image" && resource.src ? (
                                     <>
-
 
                                         <CardMedia
                                             component="img"
@@ -335,6 +334,7 @@ function ResourcePage() {
                                     display: "flex",
                                     justifyContent: "space-between",
                                     alignItems: "center",
+                                    height: '50px'
                                 }}
                             >
                                 <div>
