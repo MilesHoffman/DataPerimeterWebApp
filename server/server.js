@@ -5,10 +5,12 @@
  */
 
 const express = require("express");
+const fileUpload = require('express-fileupload')
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const AWS = require("aws-sdk");
 const {readFileSync} = require("node:fs");
+
 
 // Import Cognito functions
 const {authenticateUser, getAWSCredentials} = require("./apis/cognito_api");
@@ -42,6 +44,8 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 // Parse JSON request bodies
 app.use(bodyParser.json());
+
+app.use(fileUpload())
 
 /**
  * Login endpoint - authenticates user via Cognito and retrieves AWS credentials.
@@ -135,25 +139,29 @@ app.post("/api/resource/add", async (req, res) => {
 	try {
 		console.log("Entering resource add endpoint");
 		const region = "us-east-2";
-		const {accessKeyId, secretAccessKey, sessionToken, bucketName, filePath} =
-			req.body;
-		if (!filePath) {
+
+		const accessKeyId = req.body.accessKeyId;
+		const secretAccessKey = req.body.secretAccessKey;
+		const sessionToken = req.body.sessionToken;
+		const bucketName = req.body.bucketName;
+		const filePath = req.body.filePath
+		const file = req.files.file
+
+		if (!file) {
 			return res
 				.status(400)
-				.json({success: false, message: "File path is required."});
+				.json({ success: false, message: "File is required." })
 		}
-		if (!accessKeyId || !secretAccessKey || !sessionToken) {
-			return res.status(400).json({
-				success: false,
-				message: "Missing required AWS credentials.",
-			});
-		}
-		const credentials = {accessKeyId, secretAccessKey, sessionToken};
-		const profile = {region, credentials, bucketName};
+
+		const credentials = { accessKeyId, secretAccessKey, sessionToken };
+		const profile = { region, credentials, bucketName };
+
+		console.log("Selected file: ", file);
 
 		const path = require("path");
-		const fileNameWithExt = path.basename(filePath);
-		const extName = path.extname(filePath);
+
+		const fileNameWithExt = file.name
+		const extName = path.extname(fileNameWithExt);
 		let contentType = "";
 		switch (extName.toLowerCase()) {
 			case ".jpg":
@@ -167,23 +175,7 @@ app.post("/api/resource/add", async (req, res) => {
 				contentType = "text/plain";
 				break;
 			default:
-				contentType = "application/octet-stream";
-		}
-
-		let fileContent;
-		try {
-			fileContent =
-				extName.toLowerCase() === ".txt"
-					? readFileSync(filePath, "utf-8")
-					: readFileSync(filePath);
-		} catch (error) {
-			console.error("Error reading file:", error);
-			return res
-				.status(500)
-				.json({
-					success: false,
-					message: "Error reading file: " + error.message,
-				});
+				contentType = "application/octet-stream"
 		}
 
 		console.log("Uploading to S3...");
@@ -191,18 +183,20 @@ app.post("/api/resource/add", async (req, res) => {
 			profile,
 			bucketName,
 			fileNameWithExt,
-			fileContent,
+			file.data,
 			contentType
 		);
+
 		console.log("Resource add completed.");
-		res.json(addResult);
+		res.json(addResult.success);
+
 	} catch (error) {
 		console.error("Error in /api/resource/add:", error);
 		res
 			.status(500)
-			.json({success: false, message: "Server error: " + error.message});
+			.json({ success: false, message: "Server error: " + error.message });
 	}
-});
+})
 
 /**
  * Policy Endpoints

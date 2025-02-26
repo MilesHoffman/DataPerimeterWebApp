@@ -17,7 +17,8 @@ const tempHandler = (setAttachment = true) => {
 const ControlWidget = ({
 	title = 'title',
 	editorHandler = () => {},
-	policyType = 'SERVICE_CONTROL_POLICY'
+	policyType = 'SERVICE_CONTROL_POLICY',
+	delay = 0
 }) => {
 
 	const colors = useTheme().palette
@@ -64,7 +65,6 @@ const ControlWidget = ({
 
 		if(!success){
 			handleSnackOpen('Profile has invalid permissions', 'error')
-			setActive(success ? !active : active)
 			setLoading(false)
 		}
 		else{
@@ -102,8 +102,12 @@ const ControlWidget = ({
 			setLoading(false)
 		}
 
-		check()
-	}, []);
+		const timeoutId = setTimeout(check, delay); // sets a delay
+
+		// Cleanup function to clear the timeout if the component unmounts
+		return () => clearTimeout(timeoutId);
+
+	}, [delay, currentProfile, policyName, policyType]);
 
 	return (
 		<div>
@@ -183,16 +187,19 @@ export default function PolicyPage() {
 				title={'Network Perimeter 1'}
 				editorHandler={() => navigate('/networkControlOne')}
 				policyType={'SERVICE_CONTROL_POLICY'}
+				delay={0}
 			/>
 			<ControlWidget
 				title={'Network Perimeter 2'}
 				editorHandler={()=>navigate('/networkControlTwo')}
 				policyType={'RESOURCE_CONTROL_POLICY'}
+				delay={.1}
 			/>
 			<ControlWidget
 				title={'Identity Perimeter 1'}
 				editorHandler={()=>navigate('/networkControlOne')}
 				policyType={'RESOURCE_CONTROL_POLICY'}
+				delay={.2}
 			/>
 			<ControlWidget
 				title={'Identity Perimeter 2'}
@@ -200,6 +207,7 @@ export default function PolicyPage() {
 			<ControlWidget
 				title={'Resource Perimeter 1'}
 				policyType={'SERVICE_CONTROL_POLICY'}
+				delay={.3}
 			/>
 			<ControlWidget
 				title={'Resource Perimeter 2'}

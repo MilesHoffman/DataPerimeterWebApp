@@ -161,15 +161,14 @@ async function removeS3Resource(profile, bucketName, objectName) {
 }
 
 async function addS3Resource(profile, bucketName, objectKey, fileContent, contentType) {
-    if (!profile || !profile.credentials) {
-        return { success: false, message: "No profile or credentials available." }
-    }
-
-    if (!bucketName || !objectKey || !fileContent) {
-        return { success: false, message: "Bucket name, object key, and file content are required." }
-    }
-
     try {
+        console.log("Inside addS3Resource:");
+        console.log("  profile:", profile);
+        console.log("  bucketName:", bucketName);
+        console.log("  objectKey:", objectKey);
+        console.log("  contentType:", contentType);
+        console.log("  fileContent type:", typeof fileContent, fileContent instanceof Buffer); // CRITICAL check
+
         const s3Client = new S3Client({
             region: profile.region,
             credentials: profile.credentials,
@@ -185,13 +184,12 @@ async function addS3Resource(profile, bucketName, objectKey, fileContent, conten
         const putCommand = new PutObjectCommand(putParams)
         await s3Client.send(putCommand)
 
-
         const getObjectParams = {
             Bucket: bucketName,
             Key: objectKey,
         }
         const getCommand = new GetObjectCommand(getObjectParams)
-        const presignedUrl = await getSignedUrl(s3Client, getCommand, { expiresIn: 3600 })// URL expires in 1 hour
+        const presignedUrl = await getSignedUrl(s3Client, getCommand, { expiresIn: 3600 })
 
 
         return { success: true, message: `Object '${objectKey}' uploaded successfully to bucket '${bucketName}'.`, presignedUrl }

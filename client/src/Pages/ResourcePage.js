@@ -91,27 +91,37 @@ function ResourcePage() {
         setLoading(true)
         setError(null)
 
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('accessKeyId', currentProfile.accessKeyId);
+        formData.append('secretAccessKey', currentProfile.secretAccessKey);
+        formData.append('sessionToken', currentProfile.sessionToken);
+        formData.append('bucketName', bucketName);
+        formData.append('filePath', selectedFile.name);
+
         try {
-            console.log("Selected File: ", selectedFile)
+            const result = await axios.post("http://localhost:5000/api/resource/add", formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
 
-            const response = await axios.post("http://localhost:5000/api/resource/add", {
-                accessKeyId: currentProfile.accessKeyId,
-                secretAccessKey: currentProfile.secretAccessKey,
-                sessionToken: currentProfile.sessionToken,
-                bucketName: bucketName,
-                filePath: selectedFile,
-            })
+            if(result.data){
+                handleSnackOpen('Successfully added', 'success');
+            }
+            else{
+                handleSnackOpen('Failed to add', 'error');
+            }
+            loadPage()
 
-            //setResources(response.data.resources || []) redundant?
-            handleSnackOpen('Successfully added', 'success')
         } catch (err) {
             setError(err)
-            handleSnackOpen('Failed to add', 'error')
-            console.error("Error adding resource:", err)
+            handleSnackOpen('Failed to add: ' + (err.response?.data?.message || err.message), 'error');
+            console.error("Error adding resource:", err);
+
         } finally {
-            setLoading(false)
-            handleAddDialogClose()
-            loadPage()
+            setLoading(false);
+            handleAddDialogClose();
         }
     }
 

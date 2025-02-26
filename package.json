@@ -28,6 +28,7 @@
     "amazon-cognito-identity-js": "^6.3.12",
     "aws-sdk": "^2.1692.0",
     "concurrently": "^9.1.2",
+    "express-fileupload": "^1.5.1",
     "nodemon": "^3.1.9",
     "openid-client": "^6.1.7",
     "react-file-picker": "^0.0.6",
