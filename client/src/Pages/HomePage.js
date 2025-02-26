@@ -5,6 +5,7 @@ import {styled} from "@mui/system";
 import {useNavigate} from "react-router-dom";
 import ProfileContext from "../logic/profileLogic";
 import {LoadingSpinner} from "../components/LoadingSpinner";
+import {flushSync} from "react-dom";
 
 const DashboardContainer = styled(Box)({
 	padding: "20px",
@@ -36,73 +37,76 @@ const DashboardCard = styled(Paper)(({status}) => ({
 }));
 
 const Homepage = () => {
-	const navigate = useNavigate();
-	const {profiles, currentProfile} = useContext(ProfileContext);
-	const [accounts, setAccounts] = useState([]);
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState(null);
-	const [profileCompliance, setProfileCompliance] = useState({});
-	const fetchedProfiles = useRef(new Set());
-	const fetchedCompliance = useRef(new Set());
+	const navigate = useNavigate()
+	const {profiles, currentProfile} = useContext(ProfileContext)
+	const [accounts, setAccounts] = useState([])
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState(null)
+	const [profileCompliance, setProfileCompliance] = useState({})
+	const fetchedProfiles = useRef(new Set())
+	const fetchedCompliance = useRef(new Set())
 
 	const fetchProfileData = async () => {
 		if (!profiles || profiles.length === 0) {
-			setAccounts([]);
-			return;
+			setAccounts([])
+			return
 		}
 
-		fetchedProfiles.current.clear(); // Clear fetched profile tracking
-		setLoading(true);
-		setError(null);
+		fetchedProfiles.current.clear()
+		setLoading(true)
+		setError(null)
 
-		const updatedAccounts = [];
-
-		for (const profile of profiles) {
+		const accountsPromises = profiles.map(async (profile) => {
 			try {
-
 				const bucketResponse = await axios.post("http://localhost:5000/api/buckets_list", {
 					accessKeyId: profile.accessKeyId,
 					secretAccessKey: profile.secretAccessKey,
 					sessionToken: profile.sessionToken,
-				});
+				})
 
 				const bucketResources = bucketResponse.data.buckets?.map((bucket) => ({
 					name: bucket.name,
 					type: "S3 Bucket",
 					files: bucket.objectCount,
-				})) || [];
+				})) || []
 
-				updatedAccounts.push({name: profile.name, profile, resources: bucketResources});
+				return { name: profile.name, profile, resources: bucketResources }
+
 			} catch (err) {
-				console.error(`Error fetching data for ${profile.name}:`, err);
-				setError(`Failed to fetch data for ${profile.name}.`);
-				updatedAccounts.push({name: profile.name, profile, resources: []})
+				console.error(`Error fetching data for ${profile.name}:`, err)
+				setError(`Failed to fetch data for ${profile.name}.`)
+				return { name: profile.name, profile, resources: [] }
 			}
-		}
+		})
 
-		setAccounts(updatedAccounts);
-		console.log("updated the accounts: ", updatedAccounts)
-		setLoading(false);
-	};
+		try {
+			const updatedAccounts = await Promise.all(accountsPromises)
+			setAccounts(updatedAccounts)
+			console.log("updated the accounts: ", updatedAccounts)
+		} catch (err) {
+			console.error("Error in Promise.all:", err)
+		} finally {
+			setLoading(false)
+		}
+	}
+
 
 	const fetchComplianceStatus = async () => {
 		if (!profiles || profiles.length === 0) return;
 
-		fetchedCompliance.current.clear(); // Clear fetched compliance tracking
-		const updatedCompliance = {};
+		fetchedCompliance.current.clear()
+		let updatedCompliance = {};
 
-		for (const profile of profiles) {
+		const compliancePromises = profiles.map(async (profile) => {
 			try {
-				setLoading(true)
 
-				const checkingProfile = accounts.find((account) => account.name === profile.name)
+				const checkingProfile = accounts.find((account) => account.name === profile.name);
 
-				let checkingBucketName = ''
-				if (checkingProfile.resources.length > 0) {
-					checkingBucketName = checkingProfile.resources[0].name
-				}
-				else{
-					return
+				let checkingBucketName = '';
+				if (checkingProfile.resources !== undefined && checkingProfile.resources.length > 0) {
+					checkingBucketName = checkingProfile.resources[0].name;
+				} else {
+					return { profileName: profile.name, status: "no-resources" };
 				}
 
 				const response = await axios.post("http://localhost:5000/api/compliance_check", {
@@ -110,28 +114,42 @@ const Homepage = () => {
 					secretAccessKey: currentProfile.secretAccessKey,
 					sessionToken: currentProfile.sessionToken,
 					bucketName: checkingBucketName
-				});
+				})
 
 				const profileCompliance = response.data
 
-				console.log("compliance is: ", profileCompliance)
+				console.log(`compliance for ${checkingProfile.name} is: `, profileCompliance)
 
-				updatedCompliance[profile.name] = profileCompliance ? "compliant" : "non-compliant";
+				return { profileName: profile.name, status: profileCompliance ? "compliant" : "non-compliant" }
+
 			} catch (err) {
-				console.error(`Error checking compliance for ${profile.name}:`, err);
-				updatedCompliance[profile.name] = "error";
+				console.error(`Error checking compliance for ${profile.name}:`, err)
+				return { profileName: profile.name, status: "error" }
 			}
-		}
+		})
 
+		setLoading(true)
+
+		const results = await Promise.allSettled(compliancePromises)
+
+		results.forEach((result) => {
+			if (result.status === 'fulfilled') {
+				updatedCompliance[result.value.profileName] = result.value.status;
+			} else {
+				console.error("Promise rejected unexpectedly:", result.reason)
+				updatedCompliance[result.value.profileName] = "error"
+			}
+		})
+
+		setProfileCompliance(updatedCompliance)
 		setLoading(false)
-		setProfileCompliance(updatedCompliance);
 	};
 
 	// Gets the profile's data
 	useEffect(() => {
 		const fetchData = async () => {
-
 			await fetchProfileData();
+			setLoading(false)
 		};
 		fetchData();
 
@@ -139,7 +157,12 @@ const Homepage = () => {
 
 	// Gets compliance when accounts variable is set
 	useEffect(() => {
-		fetchComplianceStatus();
+		const complianceHandle = async () => {
+			await fetchComplianceStatus()
+			setLoading(false)
+			console.log("All profile compliance: ", profileCompliance)
+		}
+		complianceHandle()
 	}, [accounts]);
 
 	const handleProfileClick = (account, bucketName) => {
