@@ -197,7 +197,6 @@ export default function PolicyPage() {
 			/>
 			<ControlWidget
 				title={'Identity Perimeter 1'}
-				editorHandler={()=>navigate('/networkControlOne')}
 				policyType={'RESOURCE_CONTROL_POLICY'}
 				delay={.2}
 			/>

@@ -254,6 +254,34 @@ function ResourcePage() {
                 <Typography color={'textPrimary'} variant={'h5'}>
                     No files found in the resource
                 </Typography>
+
+                <Dialog open={openAddDialog} onClose={handleAddDialogClose}>
+                    <DialogTitle>Add File</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Choose a file to upload:
+                        </DialogContentText>
+                        <input
+                            type="file"
+                            accept="*"
+                            onChange={handleFileChange}
+                            style={{ display: 'none' }}
+                            id="raised-button-file"
+                        />
+                        <label htmlFor="raised-button-file">
+                            <Button variant="contained" component="span" startIcon={<AddIcon />}>
+                                Choose File
+                            </Button>
+                        </label>
+                        {selectedFile && <Typography style={{marginTop: '8px'}}>{selectedFile.name}</Typography>}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleAddDialogClose}>Cancel</Button>
+                        <Button onClick={handleAdd} variant="contained">Upload</Button>
+                    </DialogActions>
+                </Dialog>
+
+                <SnackAlert handleClose={handleClose} open={open} message={message} severity={severity} />
             </>
         )
     }
@@ -278,6 +306,34 @@ function ResourcePage() {
                 <Typography color={'error'} variant={'h5'}>
                     Access Denied
                 </Typography>
+
+                <Dialog open={openAddDialog} onClose={handleAddDialogClose}>
+                    <DialogTitle>Add File</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Choose a file to upload:
+                        </DialogContentText>
+                        <input
+                            type="file"
+                            accept="*"
+                            onChange={handleFileChange}
+                            style={{ display: 'none' }}
+                            id="raised-button-file"
+                        />
+                        <label htmlFor="raised-button-file">
+                            <Button variant="contained" component="span" startIcon={<AddIcon />}>
+                                Choose File
+                            </Button>
+                        </label>
+                        {selectedFile && <Typography style={{marginTop: '8px'}}>{selectedFile.name}</Typography>}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleAddDialogClose}>Cancel</Button>
+                        <Button onClick={handleAdd} variant="contained">Upload</Button>
+                    </DialogActions>
+                </Dialog>
+
+                <SnackAlert handleClose={handleClose} open={open} message={message} severity={severity} />
             </>
         )
     }
@@ -302,7 +358,7 @@ function ResourcePage() {
                 {resources.map((resource, index) => (
 
                     <Grid item xs={12} sm={6} md={4} lg={2.35} key={index}>
-                        <Card sx={{ height: 300, display: "flex", flexDirection: "column", background: '#465E7C' }} elevation={5}>
+                        <Card sx={{ height: 300, display: "flex", flexDirection: "column", background: '#90CAF9' }} elevation={5}>
                             <CardActionArea sx={{ flex: 1, display: "flex" }}>
                                 {resource.type === "image" && resource.src ? (
                                     <>
@@ -338,14 +394,13 @@ function ResourcePage() {
                                 }}
                             >
                                 <div>
-                                    <Typography color={'#f9fafa'} gutterBottom variant="h5" component="div">
+                                    <Typography gutterBottom variant="h5" component="div">
                                         {resource.name}
                                     </Typography>
                                 </div>
                                 <IconButton
                                     aria-label="more"
                                     id="long-button"
-                                    sx={{color: '#f9fafa'}}
                                     aria-controls={openMenu? "long-menu": undefined}
                                     aria-expanded={openMenu? "true": undefined}
                                     aria-haspopup="true"

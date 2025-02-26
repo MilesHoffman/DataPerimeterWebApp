@@ -12,7 +12,7 @@ const DashboardContainer = styled(Box)({
 });
 
 const StatusBadge = styled(Box)(({status}) => ({
-	backgroundColor: status === "compliant" ? "#90CAF9" : "#EF9A9A",
+	backgroundColor: status === "compliant" ? "#7CEABA" : "#EF9A9A",
 	color: "#000",
 	padding: "10px 15px",
 	borderRadius: "8px",
@@ -24,7 +24,7 @@ const StatusBadge = styled(Box)(({status}) => ({
 
 const DashboardCard = styled(Paper)(({status}) => ({
 	padding: "15px",
-	backgroundColor: status === "compliant" ? "#BBDEFB" : "#FFCDD2",
+	backgroundColor: status === "compliant" ? "#7CEABA" : "#FFCDD2",
 	display: "flex",
 	flexDirection: "column",
 	alignItems: "center",
@@ -32,7 +32,7 @@ const DashboardCard = styled(Paper)(({status}) => ({
 	cursor: "pointer",
 	transition: "0.3s",
 	"&:hover": {
-		backgroundColor: status === "compliant" ? "#90CAF9" : "#EF9A9A",
+		backgroundColor: status === "compliant" ? "#7CEABA" : "#EF9A9A",
 	},
 }));
 
