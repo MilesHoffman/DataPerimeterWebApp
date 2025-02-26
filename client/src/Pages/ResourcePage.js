@@ -16,7 +16,7 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 import MoreVertIcon from "@mui/icons-material/MoreVert"
 import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
-import { Stack } from "@mui/material"
+import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack, TextField} from "@mui/material"
 import ProfileContext from "../logic/profileLogic"
 import {LoadingSpinner} from "../components/LoadingSpinner";
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -38,6 +38,9 @@ function ResourcePage() {
     const [message, setMessage] = useState('')
     const [severity, setSeverity] = useState('success')
     const [selectedResource, setSelectedResource] = useState(null)
+    const [openAddDialog, setOpenAddDialog] = useState(false)
+    const [selectedFile, setSelectedFile] = useState(null)
+    const [filePath, setFilePath] = useState("")
 
     // Handles closing snack
     const handleClose = (event, reason) => {
@@ -63,9 +66,25 @@ function ResourcePage() {
         setAnchorEl(null)
     };
 
+    const handleAddDialogClose = () => {
+        setOpenAddDialog(false);
+        setSelectedFile(null);
+        setFilePath("")
+    }
+
+    const handleAddDialogOpen = () => {
+        setOpenAddDialog(true)
+    }
+
+    const handleFileChange = (event) => {
+        setSelectedFile(event.target.files[0])
+    }
+
+
     const handleAdd = async () => {
-        const filePath = prompt("Enter the full file path of the resource you want to add:")
-        if (!filePath) {
+
+        if (!selectedFile) {
+            handleSnackOpen("Please select a file.", "warning")
             return
         }
 
@@ -73,12 +92,14 @@ function ResourcePage() {
         setError(null)
 
         try {
+            console.log("Selected File: ", selectedFile)
+
             const response = await axios.post("http://localhost:5000/api/resource/add", {
                 accessKeyId: currentProfile.accessKeyId,
                 secretAccessKey: currentProfile.secretAccessKey,
                 sessionToken: currentProfile.sessionToken,
                 bucketName: bucketName,
-                filePath: filePath,
+                filePath: selectedFile,
             })
 
             //setResources(response.data.resources || []) redundant?
@@ -89,6 +110,7 @@ function ResourcePage() {
             console.error("Error adding resource:", err)
         } finally {
             setLoading(false)
+            handleAddDialogClose()
             loadPage()
         }
     }
@@ -209,7 +231,7 @@ function ResourcePage() {
         }}>
             <Stack direction="row" alignItems="center" spacing={3} marginBottom={'24px'} marginTop={'12px'} >
                 <Typography variant={'h4'}>{bucketName}</Typography>
-                <Button variant="contained" startIcon={<AddIcon />} onClick={handleAdd}>
+                <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddDialogOpen}>
                     Add File
                 </Button>
                 <Button variant="contained" startIcon={<RefreshIcon />} onClick={loadPage}>
@@ -303,6 +325,32 @@ function ResourcePage() {
                     </Grid>
                 ))}
             </Grid>
+
+            <Dialog open={openAddDialog} onClose={handleAddDialogClose}>
+                <DialogTitle>Add File</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Choose a file to upload:
+                    </DialogContentText>
+                    <input
+                        type="file"
+                        accept="*"
+                        onChange={handleFileChange}
+                        style={{ display: 'none' }}
+                        id="raised-button-file"
+                    />
+                    <label htmlFor="raised-button-file">
+                        <Button variant="contained" component="span" startIcon={<AddIcon />}>
+                            Choose File
+                        </Button>
+                    </label>
+                    {selectedFile && <Typography style={{marginTop: '8px'}}>{selectedFile.name}</Typography>}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleAddDialogClose}>Cancel</Button>
+                    <Button onClick={handleAdd} variant="contained">Upload</Button>
+                </DialogActions>
+            </Dialog>
 
             <SnackAlert handleClose={handleClose} open={open} message={message} severity={severity} />
         </div>

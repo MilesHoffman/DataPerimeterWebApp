@@ -191,14 +191,15 @@ export default function PolicyPage() {
 			/>
 			<ControlWidget
 				title={'Identity Perimeter 1'}
-				policyType={'SERVICE_CONTROL_POLICY'}
+				editorHandler={()=>navigate('/networkControlOne')}
+				policyType={'RESOURCE_CONTROL_POLICY'}
 			/>
 			<ControlWidget
 				title={'Identity Perimeter 2'}
 			/>
 			<ControlWidget
 				title={'Resource Perimeter 1'}
-				policyType={'RESOURCE_CONTROL_POLICY'}
+				policyType={'SERVICE_CONTROL_POLICY'}
 			/>
 			<ControlWidget
 				title={'Resource Perimeter 2'}

@@ -30,6 +30,8 @@
     "concurrently": "^9.1.2",
     "nodemon": "^3.1.9",
     "openid-client": "^6.1.7",
+    "react-file-picker": "^0.0.6",
+    "use-file-picker": "^2.1.2",
     "web-vitals": "^4.2.4"
   },
   "devDependencies": {
