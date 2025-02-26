@@ -202,31 +202,30 @@ async function addS3Resource(profile, bucketName, objectKey, fileContent, conten
     }
 }
 
-async function getProfileCompliance(accessKeyId, secretAccessKey, sessionToken) {
-    if (!accessKeyId || !secretAccessKey || !sessionToken) {
-        return { compliant: false, msg: " Error. Missing AWS credentials." };
+async function getProfileCompliance(accessKeyId, secretAccessKey, sessionToken, bucketName) {
+
+
+    const credentials = {
+        accessKeyId: accessKeyId,
+        secretAccessKey: secretAccessKey,
+        sessionToken: sessionToken
     }
 
-    const credentials = { accessKeyId, secretAccessKey, sessionToken };
+    try{
 
-    try {
-        const s3Client = new S3Client({ region: "us-east-2", credentials });
+        const s3Client = new S3Client({
+            region: 'us-east-2',
+            credentials: credentials
+        })
 
-        console.log("🛠️ Testing compliance by listing S3 buckets...");
-        await s3Client.send(new ListBucketsCommand({}));
+        const response = await getBucketContents(s3Client, bucketName);
 
-        console.log(" Profile is compliant.");
-        return { msg: "Access Granted", compliant: true };
-    } catch (e) {
-        console.error(" AWS Compliance Check Error:", e);
-
-        if (e.name === "AccessDenied" || e.message.includes("AccessDenied")) {
-            console.log(" Profile is NON-COMPLIANT due to access denial.");
-            return { msg: "Access Denied", compliant: false };
-        }
-
-        console.log("Profile compliance check failed due to an unknown error.");
-        return { msg: `Error: ${e.message || "Unknown error"}`, compliant: false };
+        if(response) return {msg: 'Access Granted', compliant: true}
+        else return {msg: 'Access Denied', compliant: false}
+    }catch(e){
+        // Returns the error code upon failure.
+        if( e.Code === 'AccessDenied' ) return {msg: 'Access Denied', compliant: false}
+        else return {msg: 'Error: ' + e.Code, compliant: false}
     }
 }
 

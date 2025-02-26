@@ -432,32 +432,17 @@ app.post("/api/perimeter/getNetwork2Info", async (req, res) => {
  */
 app.post("/api/compliance_check", async (req, res) => {
 	try {
-		const {accessKeyId, secretAccessKey, sessionToken} = req.body;
-		if (!accessKeyId || !secretAccessKey || !sessionToken) {
-			return res.status(400).json({message: "Missing AWS credentials."});
-		}
-		const maskedAccessKey = accessKeyId.replace(/.(?=.{4})/g, "*");
-		console.log(`Checking compliance for Access Key: ${maskedAccessKey}`);
+		const {accessKeyId, secretAccessKey, sessionToken, bucketName} = req.body;
+
 		const complianceStatus = await getProfileCompliance(
 			accessKeyId,
 			secretAccessKey,
-			sessionToken
+			sessionToken,
+			bucketName
 		);
-		if (
-			!complianceStatus ||
-			typeof complianceStatus.compliant === "undefined"
-		) {
-			console.error(
-				"Invalid API response from getProfileCompliance:",
-				complianceStatus
-			);
-			return res.status(500).json({
-				message:
-					"Internal server error: Invalid response from compliance check",
-			});
-		}
-		console.log("API Compliance Result:", complianceStatus);
-		res.status(200).json(complianceStatus);
+
+		console.log("API Compliance Result:", complianceStatus.compliant);
+		res.status(200).json(complianceStatus.compliant);
 	} catch (error) {
 		console.error("Error checking compliance:", error);
 		res.status(500).json({
