@@ -16,7 +16,16 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 import MoreVertIcon from "@mui/icons-material/MoreVert"
 import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
-import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack, TextField} from "@mui/material"
+import {
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle, Popover,
+    Select,
+    Stack,
+    TextField
+} from "@mui/material"
 import ProfileContext from "../logic/profileLogic"
 import {LoadingSpinner} from "../components/LoadingSpinner";
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -41,6 +50,8 @@ function ResourcePage() {
     const [openAddDialog, setOpenAddDialog] = useState(false)
     const [selectedFile, setSelectedFile] = useState(null)
     const [filePath, setFilePath] = useState("")
+    const [sendBucket, setSendBucket] = useState("");
+    const [openSendDropdown, setOpenSendDropdown] = useState(false)
 
     // Handles closing snack
     const handleClose = (event, reason) => {
@@ -55,6 +66,18 @@ function ResourcePage() {
         setMessage(message)
         setSeverity(severity)
         setOpen(true)
+    }
+
+    const handleSendDropdownOpen = () => {
+        setOpenSendDropdown(true);
+    }
+
+    const handleSendDropdownClose = () => {
+        setOpenSendDropdown(false);
+    }
+
+    const handleSendBucketChange = (event) => {
+        setSendBucket(event.target.value);
     }
 
     const handleClick = (event, resource) => {
@@ -177,37 +200,39 @@ function ResourcePage() {
     };
 
     const sendResource = async () => {
-        try{
-            console.log("Client sending resource: ", selectedResource.name)
-            const sendBucket = prompt('Enter the name of the bucket you are sending to: ')
+        handleAnchorElClose();
+        handleSendDropdownOpen();
+    }
 
-            setLoading(true)
+    const confirmSendResource = async () => {
+        try {
+            console.log("Client sending resource: ", selectedResource.name);
 
-            const res = await axios.post('http://localhost:5000/api/resources/send', {
+            setLoading(true);
+
+            const res = await axios.post("http://localhost:5000/api/resources/send", {
                 accessKeyId: currentProfile.accessKeyId,
                 secretAccessKey: currentProfile.secretAccessKey,
                 sessionToken: currentProfile.sessionToken,
                 sourceBucketName: bucketName,
                 destinationBucketName: sendBucket,
                 objectName: selectedResource.name,
-                objectType: selectedResource.type
-            })
-            const success = res.data.success
+                objectType: selectedResource.type,
+            });
+            const success = res.data.success;
 
-            if(success){
-                handleSnackOpen('Successfully sent the file', 'success')
+            if (success) {
+                handleSnackOpen("Successfully sent the file", "success");
+            } else {
+                handleSnackOpen("Failed to send the file", "error");
             }
-            else{
-                handleSnackOpen('Failed to send the file', 'error')
-            }
-        }
-        catch (error){
-            console.log('Error in sendResource: ', error)
-            handleSnackOpen('Error: Failed to send the file', 'error')
-        }
-        finally {
-            setLoading(false)
-            handleAnchorElClose()
+        } catch (error) {
+            console.log("Error in sendResource: ", error);
+            handleSnackOpen("Error: Failed to send the file", "error");
+        } finally {
+            setLoading(false);
+            handleSendDropdownClose();
+            setSendBucket("");
         }
     }
 
@@ -417,21 +442,44 @@ function ResourcePage() {
                                     open={openMenu}
                                     onClose={handleAnchorElClose}
                                 >
-                                    <MenuItem
-                                        onClick={() => sendResource(resource.name, resource.type)}
-                                        variant="contained"
-                                        startIcon={<EditIcon />}
-                                    >
+                                    <MenuItem onClick={sendResource} variant="contained" startIcon={<EditIcon />}>
                                         Send
                                     </MenuItem>
-                                    <MenuItem
-                                        onClick={() => handleDelete(resource.name)}
-                                        variant="contained"
-                                        startIcon={<DeleteIcon />}
-                                    >
+                                    <MenuItem onClick={() => handleDelete(resource.name)} variant="contained" startIcon={<DeleteIcon />}>
                                         Delete
                                     </MenuItem>
                                 </Menu>
+                                <Popover
+                                    open={openSendDropdown}
+                                    onClose={handleSendDropdownClose}
+                                    sx={{
+                                        position: 'fixed',
+                                        top: '60%',
+                                        left: '60%',
+                                        transform: 'translate(-50%, -50%)'
+                                    }}
+                                >
+                                    <div style={{ padding: "20px", textAlign: "center" }}>
+                                        <Typography style={{ paddingBottom: "10px" }}>
+                                            Select Destination Bucket:
+                                        </Typography>
+                                        <Select
+                                            value={sendBucket}
+                                            onChange={handleSendBucketChange}
+                                            style={{ minWidth: "200px", marginBottom: "10px" }}
+                                        >
+                                            {profiles.flatMap((profile) =>
+                                                profile.resources.map((bucket) => (
+                                                    <MenuItem key={bucket.name} value={bucket.name}>
+                                                        {bucket.name}
+                                                    </MenuItem>
+                                                ))
+                                            )}
+                                        </Select>
+                                        <MenuItem color={'primary'} onClick={confirmSendResource}>Confirm Send</MenuItem>
+                                        <MenuItem color={'primary'} onClick={handleSendDropdownClose}>Close</MenuItem>
+                                    </div>
+                                </Popover>
                             </CardContent>
                         </Card>
                     </Grid>
