@@ -32,7 +32,7 @@ const DashboardCard = styled(Paper)(({status}) => ({
 	cursor: "pointer",
 	transition: "0.3s",
 	"&:hover": {
-		backgroundColor: status === "compliant" ? "#7CEABA" : "#EF9A9A",
+		backgroundColor: status === "compliant" ? "#20CA80" : "#EF9A9A",
 	},
 }));
 
