@@ -27,6 +27,7 @@
     "@mui/material": "^6.4.1",
     "amazon-cognito-identity-js": "^6.3.12",
     "aws-sdk": "^2.1692.0",
+    "cdk": "^2.1004.0",
     "concurrently": "^9.1.2",
     "express-fileupload": "^1.5.1",
     "nodemon": "^3.1.9",
