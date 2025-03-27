@@ -16,7 +16,7 @@ const tempHandler = (setAttachment = true) => {
 
 const ControlWidget = ({
 	title = 'title',
-	editorHandler = () => {},
+	editorHandler = undefined,
 	policyType = 'SERVICE_CONTROL_POLICY',
 	delay = 0
 }) => {
@@ -142,16 +142,18 @@ const ControlWidget = ({
 					>
 						{active? 'ON': 'OFF'}
 					</Button>
-
-					<Button
-						sx={{
-							background: colors.secondary.main
-						}}
-						color={'primary'}
-						onClick={editorHandler}
-					>
-						Edit Policy
-					</Button>
+					{
+						editorHandler !== undefined &&
+						<Button
+							sx={{
+								background: colors.secondary.main
+							}}
+							color={'primary'}
+							onClick={editorHandler}
+						>
+							Edit Policy
+						</Button>
+					}
 				</div>
 			</Paper>
 

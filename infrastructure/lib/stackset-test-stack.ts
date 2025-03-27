@@ -11,10 +11,10 @@ export class StackSetTestStack extends cdk.Stack {
                 'org-test-bucket',
                 cdk.Aws.ACCOUNT_ID,
                 cdk.Aws.REGION,
-                cdk.Fn.select(0, cdk.Fn.split('-', cdk.Aws.STACK_NAME)) //Make unique across stack instances.
+                cdk.Fn.select(0, cdk.Fn.split('-', cdk.Aws.STACK_NAME))
             ]),
-            removalPolicy: cdk.RemovalPolicy.DESTROY, // CAREFUL:  For testing only!
-            autoDeleteObjects: true, // CAREFUL: For testing only!
+            removalPolicy: cdk.RemovalPolicy.DESTROY,
+            autoDeleteObjects: true,
         });
     }
 }

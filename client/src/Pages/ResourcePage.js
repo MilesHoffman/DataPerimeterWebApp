@@ -17,6 +17,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert"
 import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
 import {
+    Autocomplete,
     Dialog,
     DialogActions,
     DialogContent,
@@ -52,6 +53,11 @@ function ResourcePage() {
     const [filePath, setFilePath] = useState("")
     const [sendBucket, setSendBucket] = useState("");
     const [openSendDropdown, setOpenSendDropdown] = useState(false)
+
+    // gets all bucket names
+    const bucketNames = profiles.flatMap((profile) =>
+        profile.resources.map((bucket) => bucket.name)
+    )
 
     // Handles closing snack
     const handleClose = (event, reason) => {
@@ -459,25 +465,26 @@ function ResourcePage() {
                                         transform: 'translate(-50%, -50%)'
                                     }}
                                 >
-                                    <div style={{ padding: "20px", textAlign: "center" }}>
-                                        <Typography style={{ paddingBottom: "10px" }}>
-                                            Select Destination Bucket:
+                                    <div style={{ padding: '20px', textAlign: 'center' }}>
+                                        <Typography style={{ paddingBottom: '10px' }}>
+                                            Select or Type Destination Bucket:
                                         </Typography>
-                                        <Select
+                                        <Autocomplete
                                             value={sendBucket}
-                                            onChange={handleSendBucketChange}
-                                            style={{ minWidth: "200px", marginBottom: "10px" }}
-                                        >
-                                            {profiles.flatMap((profile) =>
-                                                profile.resources.map((bucket) => (
-                                                    <MenuItem key={bucket.name} value={bucket.name}>
-                                                        {bucket.name}
-                                                    </MenuItem>
-                                                ))
+                                            onChange={(event, newValue) => setSendBucket(newValue)} // Corrected onChange
+                                            options={bucketNames}
+                                            renderInput={(params) => (
+                                                <TextField {...params} label="Bucket Name" variant="outlined" />
                                             )}
-                                        </Select>
-                                        <MenuItem color={'primary'} onClick={confirmSendResource}>Confirm Send</MenuItem>
-                                        <MenuItem color={'primary'} onClick={handleSendDropdownClose}>Close</MenuItem>
+                                            style={{ minWidth: '200px', marginBottom: '10px' }}
+                                            freeSolo // Allows typing values not in the options
+                                        />
+                                        <MenuItem color={'primary'} onClick={confirmSendResource}>
+                                            Confirm Send
+                                        </MenuItem>
+                                        <MenuItem color={'primary'} onClick={handleSendDropdownClose}>
+                                            Close
+                                        </MenuItem>
                                     </div>
                                 </Popover>
                             </CardContent>
