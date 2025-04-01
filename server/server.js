@@ -14,7 +14,7 @@ const {readFileSync} = require("node:fs");
 
 // Import Cognito functions
 const {authenticateUser, getAWSCredentials} = require("./apis/cognito_api");
-// Import Resource API functions
+
 const {
 	getS3Resources,
 	addS3Resource,
@@ -22,20 +22,16 @@ const {
 	listAllBucketsAndContents,
 	removeS3Resource, sendS3Resource,
 } = require("./apis/resource_api");
-// Import policy toggle functions (shared for both SCP and RCP)
-const {togglePolicy, isPolicyAttached} = require("./apis/scp_rcp_api");
-// Import SCP (Network Perimeter 1) functions
+
+
 const {
-	createNetworkPerimeterSCP,
-	deleteSCP,
+	togglePolicy,
+	isPolicyAttached,
+	getPolicyIdFromName,
 	getNetworkPerimeter1Info,
-} = require("./apis/scp_api");
-// Import RCP (Network Perimeter 2) functions
-const {
-	createNetworkPerimeterRCP,
-	getNetworkPerimeter2Info,
-	deleteRCP,
-} = require("./apis/rcp_api");
+	updatePolicyContent,
+	getNetworkPerimeter2Info
+} = require("./apis/scp_rcp_api");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -295,34 +291,70 @@ app.post("/api/perimeter/modifyNetwork1", async (req, res) => {
 			sourceIps,
 			sourceVpcs,
 		} = req.body;
-		const deleteSuccess = await deleteSCP(
-			accessKeyId,
-			secretAccessKey,
-			sessionToken,
-			policyName
-		);
-		if (!deleteSuccess) {
-			console.log(
-				"SCP deletion failed (possibly did not exist). Proceeding with creation."
-			);
-		}
-		const createSuccess = await createNetworkPerimeterSCP(
+
+		console.log(`Attempting to modify SCP: ${policyName}`);
+
+		// Find the existing policy id
+		const policyId = await getPolicyIdFromName(
 			accessKeyId,
 			secretAccessKey,
 			sessionToken,
 			policyName,
-			effect,
-			action,
-			resources,
-			sourceIps,
-			sourceVpcs
+			"SERVICE_CONTROL_POLICY"
 		);
-		res.json({success: createSuccess});
+
+		// make new policy content
+		if(action.includes("*")){
+			console.error("Refusing to modify SCP with wildcard action '*'")
+			return res.json({ success: false, message: "Wildcard action '*' is not allowed for safety." });
+		}
+
+		// Creating new content
+		const newPolicyContent = JSON.stringify({
+			"Version": "2012-10-17",
+			"Statement": [
+				{
+					"Sid": "NetworkPerimeterOnIdentities",
+					"Effect": effect,
+					"Action": action,
+					"Resource": resources,
+					"Condition": {
+						"NotIpAddressIfExists": {
+							"aws:SourceIp": sourceIps
+						},
+						"StringNotEqualsIfExists": {
+							"aws:SourceVpc": sourceVpcs
+						}
+					}
+				}
+			]
+		});
+		const description = "Network Perimeter 1 denies s3 actions when on an untrusted VPC or IP.";
+
+		let success = false;
+		if (policyId) {
+			console.log(`Policy ${policyName} found (ID: ${policyId}). Updating content...`);
+			success = await updatePolicyContent(
+				accessKeyId,
+				secretAccessKey,
+				sessionToken,
+				policyId,
+				newPolicyContent,
+				policyName,
+				description
+			);
+			res.json({ success: success });
+
+		}
+		else{
+			res.json({ success: false, message: "No policy ID" });
+		}
 	} catch (error) {
-		console.error("Error in recreating network perimeter SCP:", error);
-		res.json({success: false});
+		console.error("Error in modifying network perimeter SCP:", error);
+		res.json({ success: false, message: error.message || "Unknown server error" });
 	}
 });
+
 
 /**
  * Get Network Perimeter SCP Info endpoint.
@@ -366,34 +398,68 @@ app.post("/api/perimeter/modifyNetwork2", async (req, res) => {
 			sourceIps,
 			sourceVpcs,
 		} = req.body;
-		const deleteSuccess = await deleteRCP(
-			accessKeyId,
-			secretAccessKey,
-			sessionToken,
-			policyName
-		);
-		if (!deleteSuccess) {
-			console.log(
-				"RCP deletion failed (possibly did not exist). Proceeding with creation."
-			);
-		}
-		console.log("Creating Network Perimeter RCP...");
-		const createSuccess = await createNetworkPerimeterRCP(
+
+		const policyType = 'RESOURCE_CONTROL_POLICY'
+
+		console.log(`Attempting to modify RCP: ${policyName}`);
+
+		const policyId = await getPolicyIdFromName(
 			accessKeyId,
 			secretAccessKey,
 			sessionToken,
 			policyName,
-			effect,
-			action,
-			resources,
-			sourceIps,
-			sourceVpcs
-		);
-		res.json({success: createSuccess});
+			policyType
+		)
+
+		// safety check
+		if(action.includes("*")){
+		   console.error("Refusing to modify RCP with wildcard action '*'")
+		   return res.json({ success: false, message: "Wildcard action '*' might be disallowed." });
+		}
+
+		// Create the new policy content
+		const newPolicyContent = JSON.stringify({
+			Version: "2012-10-17",
+			Statement: [
+				{
+					Sid: "NetworkPerimeterOnIdentities",
+					Effect: effect,
+					Principal: "*",
+					Action: action,
+					Resource: resources,
+					Condition: {
+						StringNotEqualsIfExists: { "aws:SourceVpc": sourceVpcs },
+						NotIpAddressIfExists: { "aws:SourceIp": sourceIps },
+					},
+				},
+			],
+		});
+
+		const description = "Network Perimeter 2 denies s3 actions when on an untrusted VPC or IP."
+
+		let success = false;
+		if (policyId) {
+			console.log(`Policy <span class="math-inline">\{policyName\} \(</span>{policyType}) found (ID: ${policyId}). Updating content...`);
+			success = await updatePolicyContent( // Use generalized function
+				accessKeyId,
+				secretAccessKey,
+				sessionToken,
+				policyId,
+				newPolicyContent,
+				policyName,
+				description
+			);
+			res.json({ success: success });
+
+		} else {
+			// Policy not found, return error
+			res.json({ success: false, message: "No policy ID found for " + policyName});
+		}
 	} catch (error) {
 		console.error("Error in modifying network perimeter RCP:", error);
-		res.json({success: false});
+		res.json({ success: false, message: error.message || "Unknown server error" });
 	}
+
 });
 
 /**
