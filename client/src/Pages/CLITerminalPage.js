@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -9,9 +9,17 @@ const CLITerminalPage = () => {
 	const { currentProfile } = useContext(ProfileContext);
 	const [cliCommand, setCliCommand] = useState("");
 	const [cliOutput, setCliOutput] = useState("");
+	const [commandHistory, setCommandHistory] = useState([]);
+	const [historyIndex, setHistoryIndex] = useState(-1);
+
+	const inputRef = useRef(null);
 
 	const handleRunCliCommand = async () => {
 		if (!cliCommand || !currentProfile) return;
+
+		setCommandHistory((prev) => [...prev, cliCommand]);
+		setHistoryIndex(-1); // Reset index when a new command is entered
+
 		try {
 			setCliOutput("Running command...");
 			const response = await axios.post("http://localhost:5000/api/cli", {
@@ -25,9 +33,31 @@ const CLITerminalPage = () => {
 			console.error("Error running CLI command:", error);
 			setCliOutput(`Error: ${error.response?.data?.error || error.message}`);
 		}
+
+		setCliCommand(""); // Clear input after run
 	};
 
-	// Show friendly message if no profile is logged in
+	const handleKeyDown = (e) => {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			handleRunCliCommand();
+		} else if (e.key === "ArrowUp") {
+			e.preventDefault();
+			if (commandHistory.length === 0) return;
+			const newIndex = historyIndex === -1 ? commandHistory.length - 1 : Math.max(0, historyIndex - 1);
+			setHistoryIndex(newIndex);
+			setCliCommand(commandHistory[newIndex]);
+		} else if (e.key === "ArrowDown") {
+			e.preventDefault();
+			if (commandHistory.length === 0) return;
+			const newIndex = historyIndex === -1 || historyIndex === commandHistory.length - 1
+				? -1
+				: historyIndex + 1;
+			setHistoryIndex(newIndex);
+			setCliCommand(newIndex === -1 ? "" : commandHistory[newIndex]);
+		}
+	};
+
 	if (!currentProfile) {
 		return (
 			<Box p={4}>
@@ -44,7 +74,6 @@ const CLITerminalPage = () => {
 		);
 	}
 
-	// Terminal page for logged-in users
 	return (
 		<Box p={4}>
 			<Typography variant="h4" mb={3}>
@@ -57,15 +86,11 @@ const CLITerminalPage = () => {
 
 			<Box display="flex" gap={2} alignItems="center" mb={2}>
 				<input
+					ref={inputRef}
 					type="text"
 					value={cliCommand}
 					onChange={(e) => setCliCommand(e.target.value)}
-					onKeyDown={(e) => {
-						if (e.key === "Enter") {
-							e.preventDefault();
-							handleRunCliCommand();
-						}
-					}}
+					onKeyDown={handleKeyDown}
 					placeholder="e.g. ec2 describe-instances"
 					style={{
 						flex: 1,
