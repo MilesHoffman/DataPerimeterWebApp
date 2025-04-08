@@ -36,6 +36,7 @@ const DashboardCard = styled(Paper)(({status}) => ({
 	},
 }));
 
+
 const Homepage = () => {
 	const navigate = useNavigate()
 	const {profiles, currentProfile, setResources} = useContext(ProfileContext)
@@ -94,6 +95,8 @@ const Homepage = () => {
 			setLoading(false)
 		}
 	}
+
+	
 
 
 	const fetchComplianceStatus = async () => {
@@ -191,8 +194,8 @@ const Homepage = () => {
 			}
 		});
 		return {compliant, nonCompliant};
+		
 	};
-
 	const {compliant, nonCompliant} = countStatuses();
 
 	return (

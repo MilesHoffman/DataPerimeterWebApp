@@ -10,7 +10,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const AWS = require("aws-sdk");
 const {readFileSync} = require("node:fs");
-
+const { exec } = require("child_process"); //for EC2 CLI
 
 // Import Cognito functions
 const {authenticateUser, getAWSCredentials} = require("./apis/cognito_api");
@@ -570,6 +570,34 @@ app.post('/api/resources/send', async (req, res) => {
 		console.log('Error in resource send: ', error)
 	}
 })
+
+app.post("/api/cli", async (req, res) => {
+	const { accessKeyId, secretAccessKey, sessionToken, command } = req.body;
+
+	if (!command || typeof command !== 'string') {
+		return res.status(400).json({ error: "Invalid or missing command" });
+	}
+
+	console.log(`Executing CLI command: aws ${command}`);
+
+	// Inject environment variables securely
+	const envVars = {
+		AWS_ACCESS_KEY_ID: accessKeyId,
+		AWS_SECRET_ACCESS_KEY: secretAccessKey,
+		AWS_SESSION_TOKEN: sessionToken,
+		AWS_DEFAULT_REGION: "us-east-2"
+	};
+
+	// Build and run command
+	exec(`aws ${command}`, { env: { ...process.env, ...envVars } }, (error, stdout, stderr) => {
+		if (error) {
+			console.error("CLI command failed:", stderr || error.message);
+			return res.status(500).json({ success: false, error: stderr || error.message });
+		}
+
+		res.json({ success: true, output: stdout });
+	});
+});
 
 // --------------------- START THE SERVER ---------------------
 

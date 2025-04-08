@@ -5,6 +5,8 @@ import ResourcePage from "./Pages/ResourcePage";
 import React, { useContext, useState } from "react";
 import HomePage from "./Pages/HomePage";
 import "./themes/appTheme.css";
+import CLITerminalPage from "./Pages/CLITerminalPage";
+
 import {
     AppBar,
     Menu,
@@ -226,6 +228,7 @@ function App() {
                     <Tab sx={{fontSize: tabfontSize}} label='Home' value='/' />
                     <Tab sx={{fontSize: tabfontSize}} label='Policies' value='/policies' />
                     <Tab sx={{fontSize: tabfontSize}} label='Login' value='/login' />
+                    <Tab sx={{fontSize: tabfontSize}} label="Terminal" value="/terminal" />
                 </Tabs>
             </div>
 
@@ -237,6 +240,7 @@ function App() {
                     <Route path="/policies" element={<Policies />} />
                     <Route path="/networkControlOne" element={<NetworkControlOne />} />
                     <Route path="/networkControlTwo" element={<NetworkControlTwo />} />
+                    <Route path="/terminal" element={<CLITerminalPage />} />
                 </Routes>
             </div>
         </div>
