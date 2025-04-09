@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts bin/infrastructure.ts",
+  "app": "node bin/infrastructure.js",
   "watch": {
     "include": [
       "**"
@@ -7,9 +7,7 @@
     "exclude": [
       "README.md",
       "cdk*.json",
-      "**/*.d.ts",
-      "**/*.js",
-      "tsconfig.json",
+      "jest.config.js",
       "package*.json",
       "yarn.lock",
       "node_modules",

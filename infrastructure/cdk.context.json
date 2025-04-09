@@ -1,0 +1,10 @@
+{
+  "acknowledged-issue-numbers": [
+    32775
+  ],
+  "availability-zones:account=600627358911:region=us-east-2": [
+    "us-east-2a",
+    "us-east-2b",
+    "us-east-2c"
+  ]
+}
